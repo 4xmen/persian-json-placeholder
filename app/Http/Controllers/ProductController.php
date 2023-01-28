@@ -45,7 +45,7 @@ class ProductController extends Controller
                 'total_pages' => $paginated->lastPage(),
                 'per_page' => $paginated->perPage(),
                 'next_page_url' => $paginated->nextPageUrl(),
-                'current_page_url' => $paginated->url(),
+//                'current_page_url' => $paginated->url(),
                 'prev_page_url' => $paginated->previousPageUrl()
             ]
             ,200);
