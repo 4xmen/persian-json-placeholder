@@ -36,13 +36,14 @@ class ProductController extends Controller
         }
 
         $paginated = Product::orderBy($sort, $sortType)->paginate($limit);
-//        $paginated->appends($request->input());
+        $paginated->appends($request->input());
         return response()->json([
                 'current_page' => $paginated->currentPage(),
                 'data' => ProductListResource::collection($paginated),
-                'count' => $paginated->count(),
+                'from' => $paginated->firstItem(),
                 'per_page' => $paginated->perPage(),
                 'total_pages' => $paginated->lastPage(),
+                'count' => $paginated->count(),
                 'per_page' => $paginated->perPage(),
                 'next_page_url' => $paginated->nextPageUrl(),
 //                'current_page_url' => $paginated->url(),
