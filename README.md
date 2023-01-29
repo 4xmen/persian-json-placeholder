@@ -1,4 +1,4 @@
-# <h1 align='center'> Pesian Json Placeholder </h1>
+# <h1 align='center'> Persian Json Placeholder </h1>
 
 <p dir='rtl'> 
  سرویس فعلی برای آزمایش api بوجود آمده است تا برنامه‌نویسان گرامی برای تست برنامه های خود از api به صورت json استفاده کنند و زبان آن پارسی می‌باشد 
