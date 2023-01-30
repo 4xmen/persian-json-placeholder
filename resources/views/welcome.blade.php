@@ -104,7 +104,19 @@
         .green {
             background-color: #00ca4e;
         }
+        .row{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-around;
+        }
+        .row img{
+            width: 600px;
 
+        }
+        .row p {
+            width: 80%;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -136,6 +148,25 @@
             </path></g>
     </svg>
 </header>
+
+<section>
+    <div class="container">
+        <div class="row">
+            <div>
+                <h3>مقدمه</h3>
+                <p>
+                    یکی از ابزار آموزشی برای برنامه‌نویسان Front-end، برنامه‌نویسان موبایل و یادگیری کار با رست‌فول ای‌پی‌آی (API)  استفاده از جی‌سان آزمایشی و جعلی می‌باشد، لذا از همین رو بر این شدیم که یک پلت فرم پارسی برای برنامه‌‌نویسان ایرانی بوجود بیاوریم که بتوانند، آزمایشات و تست خودشون رو انجام دهند.
+
+                    و این پروژه اوپن سورس بوده و شما هم می‌توانید در آن مشارکت کنید و حتی سرویس شخصی خودتون رو با توجه به نیاز خود راه اندازی کنید.
+                </p>
+            </div>
+            <div>
+                <img src="https://www.nylas.com/wp-content/uploads/JSON_Blog_Hero.png" alt="json">
+            </div>
+        </div>
+    </div>
+</section>
+
 <div class="card">
     <div class="tools">
         <div class="circle">
