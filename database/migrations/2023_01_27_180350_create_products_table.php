@@ -23,6 +23,7 @@ return new class extends Migration
             $table->unsignedBigInteger('category_id');
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('view')->default(0);
+            $table->unsignedBigInteger('price')->default(0);
             $table->unsignedBigInteger('sell_count')->default(0);
             $table->timestamps();
 

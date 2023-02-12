@@ -82,6 +82,7 @@ class ProductController extends Controller
     public function show(Product $product)
     {
         //
+        $product->increment('view');
         return response()->json(ProductResource::make($product),200);
     }
 

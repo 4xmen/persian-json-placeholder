@@ -34,6 +34,16 @@ use Spatie\MediaLibrary\InteractsWithMedia;
  * @method static \Illuminate\Database\Eloquent\Builder|Product whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Product whereView($value)
  * @mixin \Eloquent
+ * @property int $user_id
+ * @property int $sell_count
+ * @property-read \App\Models\Category $category
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Comment[] $comments
+ * @property-read int|null $comments_count
+ * @property-read \Spatie\MediaLibrary\MediaCollections\Models\Collections\MediaCollection|Media[] $media
+ * @property-read int|null $media_count
+ * @property-read \App\Models\User $user
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereSellCount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Product whereUserId($value)
  */
 class Product extends Model implements HasMedia
 {

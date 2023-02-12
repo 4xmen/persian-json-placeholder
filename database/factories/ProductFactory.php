@@ -23,6 +23,7 @@ class ProductFactory extends Factory
             'description' => $this->faker->realText(350),
             'view' => rand(0,999),
             'sell_count' => rand(0,10),
+            'price' => rand(1,1000)*1000,
             'user_id' => User::inRandomOrder()->limit(1)->first()->id,
             'category_id' => Category::inRandomOrder()->limit(1)->first(),
         ];

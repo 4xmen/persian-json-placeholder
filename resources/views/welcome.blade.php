@@ -30,14 +30,22 @@
         }
         code{
             direction: ltr;
-            background: #e0e0e0;
+            background: #e0e0e0bb;
             padding: 12px;
             display: block;
+            transition: 450ms;
+        }
+        code:hover{
+            background: #e0e0e0ff;
         }
         code a{
             color: red;
             text-decoration: none;
             margin: 8px 0;
+        }
+
+        p{
+            text-align: justify;
         }
         .container{
             max-width: 95%;
@@ -68,7 +76,7 @@
             width: 95%;
             margin: 25px auto;
             padding: 15px;
-            background-color: #011522;
+            background-color: #282c34;
             border-radius: 8px;
             z-index: 1;
             color: #fff;
