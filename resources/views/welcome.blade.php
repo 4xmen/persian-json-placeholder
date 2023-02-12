@@ -143,8 +143,8 @@
         /*-1000px width*/
         @media ( max-width: 1000px ) {
             .bg{
-                width: auto;
-                height: 100vh;
+                width: auto ;
+                height: 100vh ;
             }
             .row{
                 display: block;
@@ -155,7 +155,7 @@
                 width: 100% !important;
             }
 
-            img{
+            section img{
                 max-width: 100%;
             }
         }
