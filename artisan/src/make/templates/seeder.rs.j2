@@ -2,7 +2,7 @@
 
 #[allow(unused_imports)]
 use anyhow::{anyhow, Result};
-
+use crate::seeders::database_seeder::SeederContext;
 
 {% if has_model %}
 // model: {{ model }} (models live in the app crate and can't be imported here)
@@ -14,12 +14,12 @@ impl {{ name }} {
     /**
      * Run the database seeds.
      */
-    pub async fn run() -> Result<bool> {
-            // you code here, e.g.:
-            // if something_failed {
-            //     return Err(anyhow!("{{ name }} failed"));
-            // }
+    pub async fn run(_ctx: SeederContext) -> Result<bool> {
+        // you code here, e.g.:
+        // if something_failed {
+        //     return Err(anyhow!("{{ name }} failed"));
+        // }
 
-            Ok(true)
-        }
+        Ok(true)
+    }
 }

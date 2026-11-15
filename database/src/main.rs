@@ -1,8 +1,10 @@
+use crate::seeders::database_seeder::SeederContext;
 use anyhow::Result;
 use clap::{Parser, Subcommand};
 use rustavel_artisan::db::seed::SeedArgs;
 use rustavel_core::helper::terminal_ui::{Status, TitleKind, operation, title};
 use std::time::Instant;
+
 include!(concat!(env!("OUT_DIR"), "/generated_seeders_import.rs"));
 
 mod factories;
@@ -154,6 +156,9 @@ async fn run(cli: Cli) -> Result<(), anyhow::Error> {
             // The SeedArgs value can be used by DatabaseSeeder to decide
             // whether a specific seeder class should be executed.
             if let Some(class) = args.class {
+                let ctx = SeederContext {
+                    client: rustavel_core::sql::database_client::create_db_client().await?,
+                };
                 include!(concat!(env!("OUT_DIR"), "/generated_seeders.rs"));
             } else {
                 seeders::database_seeder::DatabaseSeeder::run().await?;

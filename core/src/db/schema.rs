@@ -4,17 +4,13 @@ use crate::db::table::{ColumnDataType, Table, TableAction};
 use crate::helper::database::{is_mysql, is_sqlite};
 use crate::helper::terminal_ui::{Status, operation};
 use crate::logger;
-use crate::sql::database_client::{
-    DatabaseClient, DbError, MySqlClient, PostgresClient, SqliteClient,
-};
+use crate::sql::database_client::{DatabaseClient, DbError, create_db_client};
 use crate::sql::generator::SqlGenerator;
 use crate::sql::mysql::MySqlGenerator;
 use crate::sql::postgres::PostgresGenerator;
 use crate::sql::sqlite::SqliteGenerator;
 use futures::future::join_all;
 use illuminate_str::Str;
-use sqlx::postgres::PgConnectOptions;
-use sqlx::{MySqlPool, PgPool, SqlitePool};
 use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::OnceCell;
@@ -101,64 +97,20 @@ impl Schema {
     pub async fn new() -> Result<Self, sqlx::Error> {
         let debug = CONFIG.app.debug;
 
-        let (generator, client): (Box<dyn SqlGenerator>, Box<dyn DatabaseClient>) =
-            match CONFIG.database.connection {
-                DatabaseEngine::Mysql => {
-                    let con_string = format!(
-                        "mysql://{}:{}@{}:{}/{}",
-                        CONFIG.database.username,
-                        CONFIG.database.password,
-                        CONFIG.database.host,
-                        CONFIG.database.port,
-                        CONFIG.database.database,
-                    );
+        let (generator, client): (Box<dyn SqlGenerator>, Box<dyn DatabaseClient>) = match CONFIG
+            .database
+            .connection
+        {
+            DatabaseEngine::Mysql => (Box::new(MySqlGenerator), create_db_client().await.unwrap()),
+            DatabaseEngine::PgSql => (
+                Box::new(PostgresGenerator),
+                create_db_client().await.unwrap(),
+            ),
 
-                    let pool = MySqlPool::connect(&con_string).await.map_err(|e| {
-                        logger::error(&format!("MySQL connection error: {}", e));
-                        e
-                    })?;
-
-                    (Box::new(MySqlGenerator), Box::new(MySqlClient { pool }))
-                }
-                DatabaseEngine::PgSql => {
-                    //let con_string = format!(
-                    //     "postgres://{}:{}@{}:{}/{}",
-                    //     CONFIG.database.username,
-                    //     CONFIG.database.password,
-                    //     CONFIG.database.host,
-                    //     CONFIG.database.port,
-                    //     CONFIG.database.database,
-                    // );
-
-                    let options = PgConnectOptions::new()
-                        .username(&CONFIG.database.username)
-                        .password(&CONFIG.database.password)
-                        .host(&CONFIG.database.host)
-                        .port(CONFIG.database.port)
-                        .database(&CONFIG.database.database);
-
-                    let pool = PgPool::connect_with(options).await.map_err(|e| {
-                        logger::error(&format!("Postgres connection error: {}", e));
-                        e
-                    })?;
-
-                    (
-                        Box::new(PostgresGenerator),
-                        Box::new(PostgresClient { pool }),
-                    )
-                }
-
-                DatabaseEngine::Sqlite => {
-                    let con_string = format!("sqlite://{}", CONFIG.database.database);
-
-                    let pool = SqlitePool::connect(&con_string).await.map_err(|e| {
-                        logger::error(&format!("SQLite connection error: {}", e));
-                        e
-                    })?;
-
-                    (Box::new(SqliteGenerator), Box::new(SqliteClient { pool }))
-                }
-            };
+            DatabaseEngine::Sqlite => {
+                (Box::new(SqliteGenerator), create_db_client().await.unwrap())
+            }
+        };
 
         Ok(Self {
             prefix: CONFIG.database.prefix.clone(),

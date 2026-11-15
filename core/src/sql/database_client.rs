@@ -1,6 +1,11 @@
-use sqlx::{AssertSqlSafe, Row};
+use crate::config::CONFIG;
+use crate::config::database::DatabaseEngine;
+use crate::logger;
+use sqlx::postgres::PgConnectOptions;
+use sqlx::{AssertSqlSafe, MySqlPool, PgPool, Row, SqlitePool};
 use std::fmt;
 use std::fmt::Debug;
+
 #[derive(Debug)]
 pub enum DbError {
     Sqlx(sqlx::Error),
@@ -456,5 +461,68 @@ impl DatabaseClient for PostgresClient {
         let count: i64 = row.try_get(0)?;
 
         Ok(count)
+    }
+}
+
+/// Creates a database client using the engine and connection settings in `CONFIG`.
+///
+/// Connects to the configured MySQL, PostgreSQL, or SQLite database and returns
+/// the client behind a [`DatabaseClient`] trait object.
+///
+/// # Errors
+///
+/// Returns [`DbError`] if the connection pool cannot be established. The
+/// connection error is logged before it is returned.
+pub async fn create_db_client() -> Result<Box<dyn DatabaseClient>, DbError> {
+    match CONFIG.database.connection {
+        DatabaseEngine::Mysql => {
+            let con_string = format!(
+                "mysql://{}:{}@{}:{}/{}",
+                CONFIG.database.username,
+                CONFIG.database.password,
+                CONFIG.database.host,
+                CONFIG.database.port,
+                CONFIG.database.database,
+            );
+
+            let pool = MySqlPool::connect(&con_string).await.map_err(|e| {
+                logger::error(&format!("MySQL connection error: {}", e));
+                e
+            })?;
+            Ok(Box::new(MySqlClient { pool }))
+        }
+        DatabaseEngine::PgSql => {
+            //let con_string = format!(
+            //     "postgres://{}:{}@{}:{}/{}",
+            //     CONFIG.database.username,
+            //     CONFIG.database.password,
+            //     CONFIG.database.host,
+            //     CONFIG.database.port,
+            //     CONFIG.database.database,
+            // );
+
+            let options = PgConnectOptions::new()
+                .username(&CONFIG.database.username)
+                .password(&CONFIG.database.password)
+                .host(&CONFIG.database.host)
+                .port(CONFIG.database.port)
+                .database(&CONFIG.database.database);
+
+            let pool = PgPool::connect_with(options).await.map_err(|e| {
+                logger::error(&format!("Postgres connection error: {}", e));
+                e
+            })?;
+            Ok(Box::new(PostgresClient { pool }))
+        }
+
+        DatabaseEngine::Sqlite => {
+            let con_string = format!("sqlite://{}", CONFIG.database.database);
+
+            let pool = SqlitePool::connect(&con_string).await.map_err(|e| {
+                logger::error(&format!("SQLite connection error: {}", e));
+                e
+            })?;
+            Ok(Box::new(SqliteClient { pool }))
+        }
     }
 }

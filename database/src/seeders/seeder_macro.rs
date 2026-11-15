@@ -8,12 +8,17 @@ macro_rules! seeders {
     ($($seeder:ty),+ $(,)?) => {{
         $(
             {
+
+                let ctx = SeederContext{
+                    client: create_db_client().await?,
+                };
+
                 // Start timing immediately before the seeder runs.
                 // This measures only the execution time of this specific seeder.
                 let start = std::time::Instant::now();
 
                 // Run the seeder and wait for it to complete.
-                let result = <$seeder>::run().await;
+                let result = <$seeder>::run(ctx).await;
 
                 match result {
                     Ok(_) => {
