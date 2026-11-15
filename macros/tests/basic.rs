@@ -73,6 +73,10 @@ struct UserFactory {
     updated_at: String,
     #[fake(betweenDatetime(start = "2025-01-01T00:00:00Z", end = "2026-12-31T23:59:59Z"))]
     register_at: String,
+    #[fake(afterDatetime(after = "2025-01-01T00:00:00Z"))]
+    blocked_at: String,
+    #[fake(beforeDatetime(before = "2025-01-01T00:00:00Z"))]
+    base_datetime: String,
 }
 
 /// Picks a role at random for each generated user.
