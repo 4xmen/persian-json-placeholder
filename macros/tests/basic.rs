@@ -69,6 +69,10 @@ struct UserFactory {
     role: Role,
     #[value("2020-01-01")]
     created_at: String,
+    #[fake(date)]
+    updated_at: String,
+    #[fake(betweenDatetime(start = "2025-01-01T00:00:00Z", end = "2026-12-31T23:59:59Z"))]
+    register_at: String,
 }
 
 /// Picks a role at random for each generated user.

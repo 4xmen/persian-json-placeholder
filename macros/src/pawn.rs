@@ -10,6 +10,8 @@ use syn::parse::{Parse, ParseStream};
 use syn::punctuated::Punctuated;
 use syn::spanned::Spanned;
 use syn::{Data, DeriveInput, Expr, ExprLit, Fields, Ident, Lit, LitInt, Path, Token};
+use time::OffsetDateTime;
+use time::format_description::well_known::Rfc3339;
 
 /// Expands the derive input into a `Pawn` implementation.
 pub fn pawn_expand(input: DeriveInput) -> syn::Result<TokenStream2> {
@@ -117,12 +119,69 @@ fn fake_init(attr: &syn::Attribute) -> syn::Result<TokenStream2> {
             let words = spec.required_int("words")?;
             quote! { ::fake::faker::lorem::#locale_ident::Sentence((#words)..(#words + 1)).fake::<String>() }
         }
+
+        // Generate a random date.
+        "date" => {
+            spec.expect_no_args()?;
+            quote! {
+                ::fake::faker::time::#locale_ident::Date().fake::<String>()
+            }
+        }
+
+        // Generate a random time.
+        "time" => {
+            spec.expect_no_args()?;
+            quote! {
+                ::fake::faker::time::#locale_ident::Time().fake::<String>()
+            }
+        }
+
+        // Generate a random datetime.
+        "datetime" => {
+            spec.expect_no_args()?;
+            quote! {
+                ::fake::faker::time::#locale_ident::DateTime().fake::<String>()
+            }
+        }
+        "beforeDatetime" => {
+            let args = spec.named_args(&["before"])?;
+            let dt = datetime_tokens(datetime_arg(args[0])?);
+            quote! {
+                ::fake::faker::time::#locale_ident::DateTimeBefore(#dt).fake::<String>()
+            }
+        }
+
+        "afterDatetime" => {
+            let args = spec.named_args(&["after"])?;
+            let dt = datetime_tokens(datetime_arg(args[0])?);
+            quote! {
+                ::fake::faker::time::#locale_ident::DateTimeAfter(#dt).fake::<String>()
+            }
+        }
+
+        "betweenDatetime" => {
+            let args = spec.named_args(&["start", "end"])?;
+            let start = datetime_arg(args[0])?;
+            let end = datetime_arg(args[1])?;
+            if start >= end {
+                return Err(syn::Error::new(
+                    args[0].key.span(),
+                    "`start` must be earlier than `end`",
+                ));
+            }
+            let (s, e) = (datetime_tokens(start), datetime_tokens(end));
+            quote! {
+                ::fake::faker::time::#locale_ident::DateTimeBetween(#s, #e).fake::<String>()
+            }
+        }
         other => {
             return Err(syn::Error::new(
                 spec.kind.span(),
                 format!(
                     "unknown fake generator `{other}`; \
-                     expected name, username, email, password, or lorem"
+                 expected name, username, email, password, lorem, \
+                 date, time, datetime, beforeDatetime, afterDatetime, \
+                 or betweenDatetime"
                 ),
             ));
         }
@@ -191,6 +250,42 @@ impl Parse for FakeArg {
 }
 
 impl FakeSpec {
+    /// Returns args in the order of `keys`, regardless of the order the user wrote them.
+    /// Errors on missing, duplicate, or unknown keys.
+    fn named_args(&self, keys: &[&str]) -> syn::Result<Vec<&FakeArg>> {
+        for arg in &self.args {
+            if !keys.iter().any(|k| arg.key == k) {
+                return Err(syn::Error::new(
+                    arg.key.span(),
+                    format!(
+                        "`{}` does not accept `{}`; expected: {}",
+                        self.kind,
+                        arg.key,
+                        keys.join(", ")
+                    ),
+                ));
+            }
+        }
+
+        keys.iter()
+            .map(|key| {
+                let mut found = self.args.iter().filter(|a| a.key == key);
+                let first = found.next().ok_or_else(|| {
+                    syn::Error::new(
+                        self.kind.span(),
+                        format!("`{}` requires `{key} = \"<RFC 3339 datetime>\"`", self.kind),
+                    )
+                })?;
+                if let Some(dup) = found.next() {
+                    return Err(syn::Error::new(
+                        dup.key.span(),
+                        format!("duplicate argument `{key}`"),
+                    ));
+                }
+                Ok(first)
+            })
+            .collect()
+    }
     /// Errors if any argument was supplied to a generator that takes none.
     fn expect_no_args(&self) -> syn::Result<()> {
         if let Some(arg) = self.args.first() {
@@ -202,7 +297,7 @@ impl FakeSpec {
         Ok(())
     }
 
-    /// Extracts a single required integer argument named `key` (e.g. `length = 8`).
+    /// Extracts a required integer argument by position.
     fn required_int(&self, key: &str) -> syn::Result<LitInt> {
         let mut iter = self.args.iter();
         let arg = iter.next().ok_or_else(|| {
@@ -211,18 +306,21 @@ impl FakeSpec {
                 format!("`{}` requires `{key} = N`", self.kind),
             )
         })?;
+
         if let Some(extra) = iter.next() {
             return Err(syn::Error::new(
                 extra.key.span(),
                 format!("`{}` accepts only `{key} = N`", self.kind),
             ));
         }
+
         if arg.key != key {
             return Err(syn::Error::new(
                 arg.key.span(),
                 format!("expected `{key}`, found `{}`", arg.key),
             ));
         }
+
         match &arg.value {
             Lit::Int(int) => Ok(int.clone()),
             other => Err(syn::Error::new(
@@ -230,5 +328,34 @@ impl FakeSpec {
                 format!("`{key}` must be an integer"),
             )),
         }
+    }
+}
+
+/// Validates an argument as an RFC 3339 string literal at compile time.
+fn datetime_arg(arg: &FakeArg) -> syn::Result<OffsetDateTime> {
+    match &arg.value {
+        Lit::Str(s) => OffsetDateTime::parse(&s.value(), &Rfc3339).map_err(|e| {
+            syn::Error::new(
+                s.span(),
+                format!(
+                    "`{}` is not a valid RFC 3339 datetime ({e}); \
+                     example: \"2025-01-01T00:00:00Z\"",
+                    s.value()
+                ),
+            )
+        }),
+        other => Err(syn::Error::new(
+            other.span(),
+            format!("`{}` must be a string literal", arg.key),
+        )),
+    }
+}
+
+/// Emits a runtime `OffsetDateTime` built from an already-validated value
+/// (no parsing at runtime).
+fn datetime_tokens(dt: OffsetDateTime) -> TokenStream2 {
+    let nanos = dt.unix_timestamp_nanos(); // i128 -> emitted as `123i128`
+    quote! {
+        ::time::OffsetDateTime::from_unix_timestamp_nanos(#nanos).unwrap()
     }
 }

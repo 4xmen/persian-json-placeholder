@@ -42,7 +42,7 @@ minijinja = { version = "3", features = [
 
 # ── Database / Persistence / fake ────────────────────────
 sqlx = { version = "0.9", features = ["runtime-tokio", "tls-rustls-ring-webpki", "mysql", "sqlite", "postgres", "macros", "time"] }
-fake = "5"
+fake =  { git = "https://github.com/cksac/fake-rs.git", branch = "master", features = ["time","http"] } # TODO: change after new release
 # ── Serialization / Data ──────────────────────────
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

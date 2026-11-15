@@ -139,6 +139,8 @@ struct UserFactory {
     role: Role,
     #[value("2020-01-01")]
     created_at: String,
+    #[fake(betweenDatetime(start = "2025-01-01T00:00:00Z", end = "2026-12-31T23:59:59Z"))]
+    register_at: String,
 }
 
 let users = UserFactory::factory().count(10).create();
