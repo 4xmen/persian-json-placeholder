@@ -1560,7 +1560,7 @@ impl Schema {
         // }
 
         // rename table's cols
-        for (old_name, new_name) in &table.rename_columns {
+        for (old_name, new_name) in table.get_rename_columns() {
             if is_mysql() {
                 body.push(
                     self.generator
@@ -1574,14 +1574,15 @@ impl Schema {
             }
         }
 
-        for column in &table.drop_columns {
+        for column in table.get_drop_columns() {
             body.push(self.generator.drop_column(&table.name, column));
         }
 
-        if !&table.foreign_keys.is_empty() && is_sqlite() {
+        let drop_foreign_keys = table.get_drop_foreign_keys();
+        if !drop_foreign_keys.is_empty() && is_sqlite() {
             logger::warn("SQLite does not support drop foreign keys");
         } else {
-            for key in &table.drop_foreign_keys {
+            for key in drop_foreign_keys {
                 body.push(self.generator.drop_foreign_key(key));
             }
         }
@@ -1589,7 +1590,7 @@ impl Schema {
         // for key in &table.foreign_keys {
         //     let str = self.generator.foreign_key(&key, &table.name, &table.action);
 
-        for key in &table.foreign_keys {
+        for key in table.get_foreign_keys() {
             // the referenced table carries the same prefix as every other table
             let mut key = key.clone();
             key.foreign_table = self.fix_table_name(&key.foreign_table);

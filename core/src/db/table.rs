@@ -5,12 +5,12 @@ use std::collections::HashMap;
 pub struct Table {
     pub name: String,
     pub columns: Vec<Column>,
-    pub foreign_keys: Vec<ForeignKey>,
     pub comment: String,
     pub action: TableAction,
-    pub drop_columns: Vec<String>,
-    pub drop_foreign_keys: Vec<String>,
-    pub rename_columns: HashMap<String, String>,
+    foreign_keys: Vec<ForeignKey>,
+    drop_columns: Vec<String>,
+    drop_foreign_keys: Vec<String>,
+    rename_columns: HashMap<String, String>,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -119,6 +119,22 @@ impl Table {
             drop_foreign_keys: Vec::new(),
             rename_columns: HashMap::new(),
         }
+    }
+
+    pub fn get_rename_columns(&self) -> &HashMap<String, String> {
+        &self.rename_columns
+    }
+
+    pub fn get_drop_columns(&self) -> &Vec<String> {
+        &self.drop_columns
+    }
+
+    pub fn get_foreign_keys(&self) -> &Vec<ForeignKey> {
+        &self.foreign_keys
+    }
+
+    pub fn get_drop_foreign_keys(&self) -> &Vec<String> {
+        &self.drop_foreign_keys
     }
 
     /// add comment to table
