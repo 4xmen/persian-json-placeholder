@@ -149,6 +149,8 @@ let admin = UserFactory::factory().state(|u| {
 .create();
 ```
 
+Note:
+> We invite you to review the progress development has made so far and our intended destination here: **[Developing Roadmap](docs/ROADMAP.md)**.
 ---
 
 ## Philosophy
@@ -354,6 +356,18 @@ The Graveyard crates are not included in the workspace by default.
 To build, test, or evaluate them, the corresponding workspace entries must be explicitly uncommented. This is done deliberately to avoid accidental usage.
 
 If you manage to meaningfully improve or revive one of these ideas in an idiomatic and safe way, contributions or notes about your approach are always welcome.
+
+## Development Philosophy & Pace
+
+Rustavel is built deliberately, not rushed.
+
+We prioritize engineering quality, clear responsibilities, and long-term maintainability over rapid feature delivery. This means progress may appear slower than projects that prioritize shipping features quickly. This is an intentional trade-off, not a lack of ambition.
+
+We do not aim to maximize AI-generated code or development speed. AI tools are not prohibited, but their use is deliberate and limited. We favor direct engineering decisions, human understanding, and clear ownership of every change over blindly accepting generated implementations.
+
+Our goal is not simply to make things work, but to understand why they work, where responsibilities belong, and what complexity they introduce.
+
+We prefer a well-understood, carefully designed implementation over a large collection of quickly generated features.
 
 ## Final Note
 
