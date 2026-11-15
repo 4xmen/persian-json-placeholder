@@ -146,17 +146,13 @@ fn fake_init(attr: &syn::Attribute) -> syn::Result<TokenStream2> {
         "beforeDatetime" => {
             let args = spec.named_args(&["before"])?;
             let dt = datetime_tokens(datetime_arg(args[0])?);
-            quote! {
-                ::fake::faker::time::#locale_ident::DateTimeBefore(#dt).fake::<String>()
-            }
+            db_datetime(quote! { ::fake::faker::time::#locale_ident::DateTimeBefore(#dt) })
         }
 
         "afterDatetime" => {
             let args = spec.named_args(&["after"])?;
             let dt = datetime_tokens(datetime_arg(args[0])?);
-            quote! {
-                ::fake::faker::time::#locale_ident::DateTimeAfter(#dt).fake::<String>()
-            }
+            db_datetime(quote! { ::fake::faker::time::#locale_ident::DateTimeAfter(#dt) })
         }
 
         "betweenDatetime" => {
@@ -170,9 +166,7 @@ fn fake_init(attr: &syn::Attribute) -> syn::Result<TokenStream2> {
                 ));
             }
             let (s, e) = (datetime_tokens(start), datetime_tokens(end));
-            quote! {
-                ::fake::faker::time::#locale_ident::DateTimeBetween(#s, #e).fake::<String>()
-            }
+            db_datetime(quote! { ::fake::faker::time::#locale_ident::DateTimeBetween(#s, #e) })
         }
         other => {
             return Err(syn::Error::new(
@@ -357,5 +351,28 @@ fn datetime_tokens(dt: OffsetDateTime) -> TokenStream2 {
     let nanos = dt.unix_timestamp_nanos(); // i128 -> emitted as `123i128`
     quote! {
         ::time::OffsetDateTime::from_unix_timestamp_nanos(#nanos).unwrap()
+    }
+}
+
+
+/// Wraps a `fake` datetime generator so the result is a DB-friendly
+/// `YYYY-MM-DD HH:MM:SS` string (UTC, no `T`, no offset), accepted by
+/// MySQL DATETIME/TIMESTAMP and also by PostgreSQL/SQLite.
+fn db_datetime(faker: TokenStream2) -> TokenStream2 {
+    quote! {
+        {
+            let __dt: ::time::OffsetDateTime =
+                ::fake::Fake::fake::<::time::OffsetDateTime>(&#faker);
+            let __dt = __dt.to_offset(::time::UtcOffset::UTC);
+            format!(
+                "{:04}-{:02}-{:02} {:02}:{:02}:{:02}",
+                __dt.year(),
+                u8::from(__dt.month()),
+                __dt.day(),
+                __dt.hour(),
+                __dt.minute(),
+                __dt.second(),
+            )
+        }
     }
 }
