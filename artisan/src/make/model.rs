@@ -29,7 +29,7 @@ pub struct NewModelArgs {
     pub has_factory: bool,
 
     /// has seeder
-    #[arg(short = 'f')]
+    #[arg(short = 's')]
     pub has_seeder: bool,
 
     /// has controller
