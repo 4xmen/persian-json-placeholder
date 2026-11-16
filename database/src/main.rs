@@ -157,7 +157,7 @@ async fn run(cli: Cli) -> Result<(), anyhow::Error> {
             // whether a specific seeder class should be executed.
             if let Some(class) = args.class {
                 let ctx = SeederContext {
-                    client: rustavel_core::sql::database_client::create_db_client().await?,
+                    pool: rustavel_core::sql::database_client::create_db_pool().await?,
                 };
                 include!(concat!(env!("OUT_DIR"), "/generated_seeders.rs"));
             } else {

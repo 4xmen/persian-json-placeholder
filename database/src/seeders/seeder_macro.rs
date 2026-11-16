@@ -10,7 +10,7 @@ macro_rules! seeders {
             {
 
                 let ctx = SeederContext{
-                    client: create_db_client().await?,
+                    pool: create_db_pool().await?,
                 };
 
                 // Start timing immediately before the seeder runs.

@@ -2370,6 +2370,7 @@ dependencies = [
  "regex",
  "rustavel-artisan",
  "rustavel-core",
+ "sqlx",
  "time",
  "tokio",
 ]

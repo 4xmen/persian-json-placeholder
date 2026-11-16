@@ -1,8 +1,9 @@
 use crate::config::CONFIG;
 use crate::config::database::DatabaseEngine;
 use crate::logger;
+use sqlx::any::install_default_drivers;
 use sqlx::postgres::PgConnectOptions;
-use sqlx::{AssertSqlSafe, MySqlPool, PgPool, Row, SqlitePool};
+use sqlx::{AnyPool, AssertSqlSafe, MySqlPool, PgPool, Row, SqlitePool};
 use std::fmt;
 use std::fmt::Debug;
 
@@ -525,4 +526,43 @@ pub async fn create_db_client() -> Result<Box<dyn DatabaseClient>, DbError> {
             Ok(Box::new(SqliteClient { pool }))
         }
     }
+}
+
+pub async fn create_db_pool() -> Result<AnyPool, DbError> {
+    install_default_drivers();
+
+    let connection_string = match CONFIG.database.connection {
+        DatabaseEngine::Mysql => {
+            format!(
+                "mysql://{}:{}@{}:{}/{}",
+                CONFIG.database.username,
+                CONFIG.database.password,
+                CONFIG.database.host,
+                CONFIG.database.port,
+                CONFIG.database.database,
+            )
+        }
+
+        DatabaseEngine::PgSql => {
+            format!(
+                "postgres://{}:{}@{}:{}/{}",
+                CONFIG.database.username,
+                CONFIG.database.password,
+                CONFIG.database.host,
+                CONFIG.database.port,
+                CONFIG.database.database,
+            )
+        }
+
+        DatabaseEngine::Sqlite => {
+            format!("sqlite://{}", CONFIG.database.database)
+        }
+    };
+
+    let pool = AnyPool::connect(&connection_string).await.map_err(|e| {
+        logger::error(&format!("Database connection error: {}", e));
+        e
+    })?;
+
+    Ok(pool)
 }

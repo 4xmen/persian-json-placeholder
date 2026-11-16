@@ -354,7 +354,6 @@ fn datetime_tokens(dt: OffsetDateTime) -> TokenStream2 {
     }
 }
 
-
 /// Wraps a `fake` datetime generator so the result is a DB-friendly
 /// `YYYY-MM-DD HH:MM:SS` string (UTC, no `T`, no offset), accepted by
 /// MySQL DATETIME/TIMESTAMP and also by PostgreSQL/SQLite.

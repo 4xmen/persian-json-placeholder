@@ -22,6 +22,7 @@ async-trait.workspace = true
 illuminate-str.workspace = true
 fake.workspace = true
 time.workspace = true
+sqlx.workspace = true
 
 [build-dependencies]
 regex.workspace = true

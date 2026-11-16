@@ -250,7 +250,9 @@ impl SqlGenerator for MySqlGenerator {
                 footers.push("PRIMARY KEY (`id`)".to_string());
             }
             ColumnDataType::DTBoolean => {
-                column_sql = format!("`{}` BIT(1) {} {}", column.name, nullable, def);
+                // cuz some time problem in insert
+                // column_sql = format!("`{}` BIT(1) {} {}", column.name, nullable, def);
+                column_sql = format!("`{}` TINYINT(1) {} {}", column.name, nullable, def);
             }
             ColumnDataType::DTTinyInteger => {
                 column_sql = format!(
