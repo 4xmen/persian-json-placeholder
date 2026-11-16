@@ -5,6 +5,10 @@ use std::time::Instant;
 
 #[tokio::test]
 async fn bug12_drop_all_tables_with_foreign_keys() {
+    if CONFIG.app.env != "dev" {
+        eprintln!("skipped: SAFETY — destructive database test requires dev environment");
+        return;
+    }
     if CONFIG.database.connection != DatabaseEngine::Mysql {
         eprintln!("skipped: needs MySQL");
         return;
