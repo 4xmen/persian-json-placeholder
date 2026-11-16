@@ -528,6 +528,16 @@ pub async fn create_db_client() -> Result<Box<dyn DatabaseClient>, DbError> {
     }
 }
 
+/// Creates and initializes a database connection pool.
+///
+/// Configures the default database drivers and establishes a connection pool
+/// using the database settings defined in the application configuration.
+///
+/// Supports MySQL, PostgreSQL, and SQLite.
+///
+/// # Errors
+///
+/// Returns a `DbError` if the database connection pool cannot be established.
 pub async fn create_db_pool() -> Result<AnyPool, DbError> {
     install_default_drivers();
 

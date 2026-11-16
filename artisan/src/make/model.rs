@@ -1,8 +1,10 @@
 use crate::general::generate_model::save_generated_model;
 use crate::general::lib::ensure_new_file;
 use crate::make::controller::{NewControllerArgs, controller};
+use crate::make::factory::{NewFactoryArgs, factory};
 use crate::make::make_error::MakeError;
 use crate::make::migration::{NewMigArgs, migrate};
+use crate::make::seeder::{NewSeederArgs, seeder};
 use clap::Args;
 use illuminate_str::Str;
 use minijinja::{Environment, context};
@@ -17,9 +19,18 @@ const MODEL_TEMPLATE: &str = include_str!("templates/model.rs.j2");
 pub struct NewModelArgs {
     /// The name of the model
     pub name: String,
+
     /// has migration
     #[arg(short = 'm')]
     pub has_migration: bool,
+
+    /// has factory
+    #[arg(short = 'f')]
+    pub has_factory: bool,
+
+    /// has seeder
+    #[arg(short = 'f')]
+    pub has_seeder: bool,
 
     /// has controller
     #[arg(short = 'c')]
@@ -75,6 +86,26 @@ pub async fn model(args: &NewModelArgs) -> Result<(), MakeError> {
             model: Some(model_name.clone()),
         };
         controller(&cont_args).await?;
+    }
+
+    // check factory and create
+    if args.has_factory {
+        let factory_name = format!("{}Factory", &model_name);
+        let fact_args = NewFactoryArgs {
+            name: factory_name,
+            model: Some(model_name.clone()),
+        };
+        factory(&fact_args).await?;
+    }
+
+    // check seeder and create
+    if args.has_seeder {
+        let seeder_name = format!("{}Seeder", &model_name);
+        let sed_args = NewSeederArgs {
+            name: seeder_name,
+            model: Some(model_name.clone()),
+        };
+        seeder(&sed_args).await?;
     }
 
     // WIP: create controller

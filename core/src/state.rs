@@ -5,6 +5,7 @@ use axum::response::{Html, IntoResponse};
 use minijinja::value::Serde;
 use minijinja::{Environment, Value, context};
 use serde::Serialize;
+use sqlx::AnyPool;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -12,6 +13,7 @@ use std::sync::Arc;
 pub struct AppState {
     pub routes: Arc<HashMap<String, String>>,
     pub templates: Arc<Environment<'static>>,
+    pub db_pool: AnyPool,
 }
 
 impl AppState {
