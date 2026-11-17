@@ -56,7 +56,7 @@ once_cell = "1.21.4"     # lazy statics
 async-trait = "0.1.92"   # async in traits
 
 # ── Time / Date ───────────────────────────────────
-time = { version = "0.3", features = ["macros", "parsing", "formatting", "local-offset", "serde"] } # modern time handling
+time = { version = "0.3", features = ["macros", "parsing", "formatting", "local-offset", "serde", "serde-human-readable"] } # modern time handling
 
 # ── String and utilty  ─────────────────────────
 regex = "1.13.1" # str
