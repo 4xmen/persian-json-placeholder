@@ -11,6 +11,7 @@ use rustavel_core::helper::persian::{persian_lorem_html, persian_slug};
 use sqlx::AnyPool;
 use std::collections::HashMap;
 use std::fmt::format;
+use rustavel_core::config::database::DbPoolType;
 // model: Product (models live in the app crate and can't be imported here)
 
 pub struct ProductSeeder;
@@ -21,7 +22,7 @@ impl ProductSeeder {
      */
 
     pub async fn run(ctx: SeederContext) -> Result<bool> {
-        let mut images: HashMap<i32, Vec<String>> = HashMap::new();
+        let mut images: HashMap<u64, Vec<String>> = HashMap::new();
         let cats = get_category(&ctx.pool).await?;
         let cats_slug = get_category_slug(&ctx.pool).await?;
         let cats_parent = get_category_parent(&ctx.pool).await?;
@@ -78,7 +79,7 @@ impl ProductSeeder {
             image_list.shuffle(&mut rng);
 
             for (index, main_image) in image_list.iter().enumerate() {
-                let price = format!("{}000000", random(11, 1000));
+                let price: u64 = random(11, 1000) as u64 * 1000000 ;
                 let stock = random(0, 120);
 
                 let (name, slug) = persian_slug();
@@ -97,10 +98,10 @@ impl ProductSeeder {
                     .bind(format!("{} {}", cats.get(&cat_id).unwrap(), &name))
                     .bind(format!("{}-{}", cats_slug.get(&cat_id).unwrap(), &slug))
                     .bind(persian_lorem_html(true, 120, "<br><br>"))
-                    .bind(&price)
-                    .bind(stock)
-                    .bind(cat_id)
-                    .bind(user_id)
+                    .bind(price)
+                    .bind(stock as u64)
+                    .bind(cat_id as u64)
+                    .bind(user_id as u64)
                     .bind(&main_image.replace("storage/app/public", "storage"))
                     .bind(&thumb)
                     .bind(&now)
@@ -131,13 +132,13 @@ impl ProductSeeder {
 
                 // insert main category
                 sqlx::query(rel_sql)
-                    .bind(&product_id)
-                    .bind(cat_id)
+                    .bind(product_id )
+                    .bind(cat_id  as u64)
                     .execute(&ctx.pool)
                     .await?;
                 // insert parent category
                 sqlx::query(rel_sql)
-                    .bind(&product_id)
+                    .bind(product_id )
                     .bind(cats_parent.get(&cat_id).unwrap())
                     .execute(&ctx.pool)
                     .await?;
@@ -153,7 +154,7 @@ impl ProductSeeder {
                     let thumb = format!("storage/product/thumb/{filename}");
 
                     sqlx::query(image_sql)
-                        .bind(product_id)
+                        .bind(product_id as u64)
                         .bind(&image.replace("storage/app/public", "storage"))
                         .bind(&thumb)
                         .execute(&ctx.pool)
@@ -166,24 +167,24 @@ impl ProductSeeder {
     }
 }
 
-async fn get_category(pool: &AnyPool) -> Result<HashMap<i32, String>, sqlx::Error> {
+async fn get_category(pool: &DbPoolType) -> Result<HashMap<u64, String>, sqlx::Error> {
     let sql_cats = "SELECT id, name FROM categories";
 
-    let rows: Vec<(i32, String)> = sqlx::query_as(sql_cats).fetch_all(pool).await?;
+    let rows: Vec<(u64, String)> = sqlx::query_as(sql_cats).fetch_all(pool).await?;
 
     Ok(rows.into_iter().collect())
 }
-async fn get_category_slug(pool: &AnyPool) -> Result<HashMap<i32, String>, sqlx::Error> {
+async fn get_category_slug(pool: &DbPoolType) -> Result<HashMap<u64, String>, sqlx::Error> {
     let sql_cats = "SELECT id, slug FROM categories";
 
-    let rows: Vec<(i32, String)> = sqlx::query_as(sql_cats).fetch_all(pool).await?;
+    let rows: Vec<(u64, String)> = sqlx::query_as(sql_cats).fetch_all(pool).await?;
 
     Ok(rows.into_iter().collect())
 }
-async fn get_category_parent(pool: &AnyPool) -> Result<HashMap<i32, i32>, sqlx::Error> {
+async fn get_category_parent(pool: &DbPoolType) -> Result<HashMap<u64, u64>, sqlx::Error> {
     let sql_cats = "SELECT id, parent_id FROM categories WHERE parent_id IS NOT NULL";
 
-    let rows: Vec<(i32, i32)> = sqlx::query_as(sql_cats).fetch_all(pool).await?;
+    let rows: Vec<(u64, u64)> = sqlx::query_as(sql_cats).fetch_all(pool).await?;
 
     Ok(rows.into_iter().collect())
 }

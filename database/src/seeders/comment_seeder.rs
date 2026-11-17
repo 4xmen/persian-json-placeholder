@@ -7,6 +7,7 @@ use anyhow::{Result, anyhow};
 use macros_core::factory::Pawn;
 use rustavel_core::helper::number::random;
 use sqlx::AnyPool;
+use rustavel_core::config::database::DbPoolType;
 // model: Comment (models live in the app crate and can't be imported here)
 
 pub struct CommentSeeder;
@@ -57,17 +58,17 @@ impl CommentSeeder {
     }
 }
 
-async fn get_product_ids(pool: &AnyPool) -> Result<Vec<i32>, sqlx::Error> {
+async fn get_product_ids(pool: &DbPoolType) -> Result<Vec<u64>, sqlx::Error> {
     let sql = "SELECT id FROM products";
 
-    let ids: Vec<i32> = sqlx::query_scalar(sql).fetch_all(pool).await?;
+    let ids: Vec<u64> = sqlx::query_scalar(sql).fetch_all(pool).await?;
 
     Ok(ids)
 }
-async fn get_post_ids(pool: &AnyPool) -> Result<Vec<i32>, sqlx::Error> {
+async fn get_post_ids(pool: &DbPoolType) -> Result<Vec<u64>, sqlx::Error> {
     let sql = "SELECT id FROM products";
 
-    let ids: Vec<i32> = sqlx::query_scalar(sql).fetch_all(pool).await?;
+    let ids: Vec<u64> = sqlx::query_scalar(sql).fetch_all(pool).await?;
 
     Ok(ids)
 }

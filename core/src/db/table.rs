@@ -211,7 +211,7 @@ impl Table {
             // created_at / updated_at are created as NULL-able columns
             ColumnDataType::DTTimestamps => "Option<time::PrimitiveDateTime>".to_string(),
             ColumnDataType::DTTime => "time::Time".to_string(),
-            ColumnDataType::DTSoftDelete => "Option<time::PrimitiveDateTime>".to_string(),
+            ColumnDataType::DTSoftDelete => "Option<time::OffsetDateTime>".to_string(),
             ColumnDataType::DTEnum | ColumnDataType::DTSet => "String".to_string(),
             // ColumnDataType::DTMorph => "i64".to_string(),
             ColumnDataType::DTMorph => if CONFIG.database.connection == DatabaseEngine::Mysql {

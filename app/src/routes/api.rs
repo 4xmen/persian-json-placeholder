@@ -21,7 +21,8 @@ pub fn api_routes() -> BuiltRoutes<AppState> {
             v1.group(|users| {
                 users.prefix("/users").name("users");
                 users.get("", user_controller::index).name("index");
-                users.get("create", hello_api).name("create");
+                // users.get("create", hello_api).name("create");
+                users.get("/{id}", user_controller::show).name("show");
             });
             v1.post("register", register).name("register");
         })

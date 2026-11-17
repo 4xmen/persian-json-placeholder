@@ -13,8 +13,8 @@ pub struct Comment {
     pub email: String,
     pub commentable_type: String,
     pub commentable_id: u64,
-    pub created_at: Option<time::PrimitiveDateTime>,
-    pub updated_at: Option<time::PrimitiveDateTime>,
+    pub created_at: Option<time::OffsetDateTime>,
+    pub updated_at: Option<time::OffsetDateTime>,
 }
 
 impl Model for Comment {

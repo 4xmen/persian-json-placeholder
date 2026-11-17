@@ -13,8 +13,8 @@ pub struct Post {
     pub body: Option<String>,
     pub user_id: u64,
     pub image: String,
-    pub created_at: Option<time::PrimitiveDateTime>,
-    pub updated_at: Option<time::PrimitiveDateTime>,
+    pub created_at: Option<time::OffsetDateTime>,
+    pub updated_at: Option<time::OffsetDateTime>,
 }
 
 impl Model for Post {

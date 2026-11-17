@@ -10,12 +10,12 @@ pub struct User {
     pub id: u64,
     pub name: String,
     pub email: String,
-    pub email_verified_at: Option<time::PrimitiveDateTime>,
+    pub email_verified_at: Option<time::OffsetDateTime>,
     pub password: String,
     pub remember_token: Option<String>,
-    pub created_at: Option<time::PrimitiveDateTime>,
-    pub updated_at: Option<time::PrimitiveDateTime>,
-    pub deleted_at: Option<time::PrimitiveDateTime>,
+    pub created_at: Option<time::OffsetDateTime>,
+    pub updated_at: Option<time::OffsetDateTime>,
+    pub deleted_at: Option<time::OffsetDateTime>,
 }
 
 impl Model for User {

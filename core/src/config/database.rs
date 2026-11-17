@@ -1,13 +1,13 @@
 use crate::helper::database::{is_mysql, is_pgsql, is_sqlite};
-use crate::sql::database_client::{DbError, create_db_pool_any};
+use crate::sql::database_client::{DbError, create_db_pool_any, create_db_pool_mysql};
 use std::any::TypeId;
 use std::{env, str::FromStr};
 
 // define default db pool
-pub type DbPoolType = sqlx::AnyPool;
+pub type DbPoolType = sqlx::MySqlPool;
 // define default pool creator function
 pub async fn create_db_pool() -> Result<DbPoolType, DbError> {
-    create_db_pool_any().await
+    create_db_pool_mysql().await
 }
 
 #[derive(Debug, Clone, PartialEq)]
