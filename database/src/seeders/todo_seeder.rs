@@ -2,15 +2,40 @@
 
 use crate::seeders::database_seeder::SeederContext;
 use anyhow::{Result, anyhow};
+use rustavel_core::helper::datetime::now_ymd_hms;
+use rustavel_core::helper::number::random;
 
 pub struct TodoSeeder;
 
 impl TodoSeeder {
-    pub async fn run(_ctx: SeederContext) -> Result<bool> {
-        let success = true;
+    pub async fn run(ctx: SeederContext) -> Result<bool> {
+        let titles = [
+            "خرید موس پد",
+            "مرتب کردن میز کار",
+            "پشتیبان‌گیری از فایل‌ها",
+            "بررسی ایمیل‌ها",
+            "مطالعه روزانه",
+            "انجام تمرین برنامه‌نویسی",
+            "پرداخت قبض‌ها",
+            "خرید مواد غذایی",
+            "پیاده‌روی",
+            "برنامه‌ریزی برای هفته آینده",
+        ];
 
-        if !success {
-            return Err(anyhow!("Todo seeder failed"));
+        let sql = r#"INSERT INTO `todos`
+        (`title`,`done`,`created_at`,`updated_at`)
+        VALUES (?, ?, ?, ?)"#;
+
+        let now = now_ymd_hms();
+
+        for title in titles {
+            let n = sqlx::query(sql)
+                .bind(title)
+                .bind(random(0, 1))
+                .bind(&now)
+                .bind(&now)
+                .execute(&ctx.pool)
+                .await?;
         }
 
         Ok(true)

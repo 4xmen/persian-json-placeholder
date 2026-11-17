@@ -1,8 +1,13 @@
 use crate::seeders;
+use crate::seeders::category_seeder::CategorySeeder;
+use crate::seeders::product_seeder::ProductSeeder;
 use crate::seeders::todo_seeder::TodoSeeder;
+use crate::seeders::user_seeder::UserSeeder;
 use anyhow::Result;
 use rustavel_core::sql::database_client::create_db_pool;
 use sqlx::AnyPool;
+use crate::seeders::comment_seeder::CommentSeeder;
+use crate::seeders::post_seeder::PostSeeder;
 
 pub struct DatabaseSeeder;
 
@@ -15,7 +20,7 @@ impl DatabaseSeeder {
      * Seed the application's database.
      */
     pub async fn run() -> Result<()> {
-        let _ = seeders!(TodoSeeder,);
+        let _ = seeders!(TodoSeeder, UserSeeder, CategorySeeder, ProductSeeder,PostSeeder,CommentSeeder);
         Ok(())
     }
 }

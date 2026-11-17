@@ -10,9 +10,9 @@ path = "src/main.rs"
 
 [dependencies]
 rustavel-core = { path = "../core" }
-rustavel-artisan = { path = "../artisan"}
-macros= {path = "../macros"}
-macros-core= {path = "../macros-core"}
+rustavel-artisan = { path = "../artisan" }
+macros = { path = "../macros" }
+macros-core = { path = "../macros-core" }
 clap.workspace = true
 tokio.workspace = true
 dotenv.workspace = true
@@ -23,6 +23,11 @@ illuminate-str.workspace = true
 fake.workspace = true
 time.workspace = true
 sqlx.workspace = true
+rand.workspace = true
+
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "webp"] }
+
+webp = { version = "0.3", features = ["img"] }
 
 [build-dependencies]
 regex.workspace = true

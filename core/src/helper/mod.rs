@@ -5,4 +5,5 @@ pub mod file;
 pub mod file_content;
 pub mod number;
 pub mod password;
+pub mod persian;
 pub mod terminal_ui;

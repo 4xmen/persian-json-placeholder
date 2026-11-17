@@ -1,4 +1,10 @@
 {
     migration!(m_2025_01_15_1945_create_todos,CreateTodos);
     migration!(m_2026_11_06_190654_user_create,UserCreate);
+    migration!(m_2026_11_16_140036_post_create,PostCreate);
+    migration!(m_2026_11_16_140054_category_create,CategoryCreate);
+    migration!(m_2026_11_16_140105_product_create,ProductCreate);
+    migration!(m_2026_11_16_140111_comment_create,CommentCreate);
+    migration!(m_2026_11_16_222303_image_create,ImageCreate);
+    migration!(m_2026_11_17_003237_product_category,ProductCategory);
 }
