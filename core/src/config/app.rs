@@ -13,6 +13,7 @@ pub struct AppConfig {
     pub locale: String,
     pub fallback_locale: String,
     pub faker_locale: String,
+    pub url: String,
 }
 
 impl Default for AppConfig {
@@ -28,6 +29,7 @@ impl Default for AppConfig {
             locale: "en".into(),
             fallback_locale: "en".into(),
             faker_locale: "en".into(),
+            url: "http://localhost:3000/".into(),
         }
     }
 }
@@ -74,6 +76,9 @@ impl AppConfig {
 
         if let Ok(v) = env::var("APP_FAKER_LOCALE") {
             cfg.faker_locale = v;
+        }
+        if let Ok(v) = env::var("APP_URL") {
+            cfg.url = v;
         }
 
         cfg
