@@ -1,14 +1,14 @@
 use crate::seeders;
 use crate::seeders::todo_seeder::TodoSeeder;
 use anyhow::Result;
-use rustavel_core::sql::database_client::create_db_pool;
-use sqlx::AnyPool;
+use rustavel_core::config::database::DbPoolType;
+use rustavel_core::config::database::create_db_pool;
 
 pub struct DatabaseSeeder;
 
 #[allow(dead_code)]
 pub struct SeederContext {
-    pub(crate) pool: AnyPool,
+    pub(crate) pool: DbPoolType,
 }
 impl DatabaseSeeder {
     /**

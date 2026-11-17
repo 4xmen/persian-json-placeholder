@@ -4,12 +4,14 @@ mod http;
 mod models;
 mod routes;
 
+mod helper;
+
 use minijinja::{Environment, path_loader};
 use rustavel_core::config::CONFIG;
+use rustavel_core::config::database::create_db_pool;
 use rustavel_core::logger;
 use rustavel_core::mvc::view::{register_csrf_functions, register_global_func, resolve_views_dir};
 use rustavel_core::route::http_middleware;
-use rustavel_core::sql::database_client::create_db_pool;
 use rustavel_core::state::AppState;
 
 #[tokio::main]
@@ -33,9 +35,7 @@ async fn main() {
     register_global_func(&mut env, routes_map.clone());
     register_csrf_functions(&mut env);
 
-    let db_pool = create_db_pool()
-        .await
-        .unwrap_or_else(|e| panic!("Failed to initialize database connection: {e}"));
+    let db_pool = create_db_pool().await.expect("Could not create db pool");
 
     let state = AppState {
         routes: routes_map,
