@@ -11,7 +11,7 @@ pub struct {{ name }} {
 }
 
 impl Model for {{ name }} {
-    type PrimaryKey = u64;
+    type PrimaryKey = {{ pkey_type }};
 
     fn table() -> &'static str {
         "{{ table }}"

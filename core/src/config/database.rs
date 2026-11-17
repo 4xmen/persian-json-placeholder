@@ -1,4 +1,14 @@
+use crate::helper::database::{is_mysql, is_pgsql, is_sqlite};
+use crate::sql::database_client::{DbError, create_db_pool_any};
+use std::any::TypeId;
 use std::{env, str::FromStr};
+
+// define default db pool
+pub type DbPoolType = sqlx::AnyPool;
+// define default pool creator function
+pub async fn create_db_pool() -> Result<DbPoolType, DbError> {
+    create_db_pool_any().await
+}
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum DatabaseEngine {
@@ -92,5 +102,29 @@ impl FromStr for DatabaseEngine {
                 "unknown database driver `{other}` (expected: sqlite, mysql, pgsql)"
             )),
         }
+    }
+}
+
+pub fn db_kind() -> &'static str {
+    let tid = TypeId::of::<DbPoolType>();
+    if tid == TypeId::of::<sqlx::PgPool>() {
+        if !is_pgsql() {
+            panic!("If you need use PgPool native you fix your config too.")
+        }
+        "postgres"
+    } else if tid == TypeId::of::<sqlx::MySqlPool>() {
+        if !is_mysql() {
+            panic!("If you need use MySqlPool native you fix your config too.")
+        }
+        "mysql"
+    } else if tid == TypeId::of::<sqlx::SqlitePool>() {
+        if !is_sqlite() {
+            panic!("If you need use SqlitePool native you fix your config too.")
+        }
+        "sqlite"
+    } else if tid == TypeId::of::<sqlx::AnyPool>() {
+        "any"
+    } else {
+        panic!("Unknown database type Look at: core/src/config/database.rs -> DbPoolType");
     }
 }

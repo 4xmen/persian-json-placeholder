@@ -538,7 +538,7 @@ pub async fn create_db_client() -> Result<Box<dyn DatabaseClient>, DbError> {
 /// # Errors
 ///
 /// Returns a `DbError` if the database connection pool cannot be established.
-pub async fn create_db_pool() -> Result<AnyPool, DbError> {
+pub async fn create_db_pool_any() -> Result<AnyPool, DbError> {
     install_default_drivers();
 
     let connection_string = match CONFIG.database.connection {
@@ -575,4 +575,71 @@ pub async fn create_db_pool() -> Result<AnyPool, DbError> {
     })?;
 
     Ok(pool)
+}
+
+/// Creates and initializes a MySQL connection pool.
+///
+/// Installs the MySQL driver and establishes a connection pool
+/// using the configured MySQL database settings.
+///
+/// # Errors
+///
+/// Returns a `DbError` if the MySQL connection pool cannot be established.
+pub async fn create_db_pool_mysql() -> Result<MySqlPool, DbError> {
+    Ok(MySqlPool::connect(&format!(
+        "mysql://{}:{}@{}:{}/{}",
+        CONFIG.database.username,
+        CONFIG.database.password,
+        CONFIG.database.host,
+        CONFIG.database.port,
+        CONFIG.database.database,
+    ))
+    .await
+    .map_err(|e| {
+        logger::error(&format!("MySQL connection error: {}", e));
+        e
+    })?)
+}
+
+/// Creates and initializes a PostgreSQL connection pool.
+///
+/// Installs the PostgreSQL driver and establishes a connection pool
+/// using the configured PostgreSQL database settings.
+///
+/// # Errors
+///
+/// Returns a `DbError` if the PostgreSQL connection pool cannot be established.
+pub async fn create_db_pool_pgsql() -> Result<PgPool, DbError> {
+    Ok(PgPool::connect(&format!(
+        "postgres://{}:{}@{}:{}/{}",
+        CONFIG.database.username,
+        CONFIG.database.password,
+        CONFIG.database.host,
+        CONFIG.database.port,
+        CONFIG.database.database,
+    ))
+    .await
+    .map_err(|e| {
+        logger::error(&format!("PostgreSQL connection error: {}", e));
+        e
+    })?)
+}
+
+/// Creates and initializes a SQLite connection pool.
+///
+/// Installs the SQLite driver and establishes a connection pool
+/// using the configured SQLite database settings.
+///
+/// # Errors
+///
+/// Returns a `DbError` if the SQLite connection pool cannot be established.
+pub async fn create_db_pool_sqlite() -> Result<SqlitePool, DbError> {
+    Ok(
+        SqlitePool::connect(&format!("sqlite://{}", CONFIG.database.database))
+            .await
+            .map_err(|e| {
+                logger::error(&format!("SQLite connection error: {}", e));
+                e
+            })?,
+    )
 }

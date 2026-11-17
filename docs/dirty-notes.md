@@ -50,3 +50,27 @@ match tables_columns.await {
 ```
 
 The issue was that these functions had already been implemented, and we were reusing them to preserve backward compatibility. Although the fetched table and column values were cached, the implementation required separate queries. Fetching everything in a single query is a better approach, and using `Arc` makes cloning the result inexpensive.
+
+## use native db pool
+
+To use native db pool we need change: `core/src/config/database.rs`:
+
+- default is any:
+
+```rust
+// define default db pool
+pub type DbPoolType = sqlx::AnyPool;
+// define default pool creator function
+pub async fn create_db_pool() -> Result<DbPoolType, DbError> {
+    create_db_pool_any().await
+```
+
+- for example mysql native:
+
+```rust
+pub type DbPoolType = sqlx::MySqlPool;          // change here
+
+pub async fn create_db_pool() -> Result<DbPoolType, DbError> {
+    create_db_pool_mysql().await                 // and here
+}
+```

@@ -216,6 +216,7 @@ impl Table {
             // ColumnDataType::DTMorph => "i64".to_string(),
             ColumnDataType::DTMorph => if CONFIG.database.connection == DatabaseEngine::Mysql {
                 "u64"
+                // "i64"  // we choose this yet maybe need change
             } else {
                 "i64"
             }

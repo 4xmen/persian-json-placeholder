@@ -1,3 +1,4 @@
+use crate::config::database::DbPoolType;
 use crate::http::session::Session;
 use axum::extract::FromRef;
 use axum::http::StatusCode;
@@ -5,7 +6,6 @@ use axum::response::{Html, IntoResponse};
 use minijinja::value::Serde;
 use minijinja::{Environment, Value, context};
 use serde::Serialize;
-use sqlx::AnyPool;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -13,7 +13,7 @@ use std::sync::Arc;
 pub struct AppState {
     pub routes: Arc<HashMap<String, String>>,
     pub templates: Arc<Environment<'static>>,
-    pub db_pool: AnyPool,
+    pub db_pool: DbPoolType,
 }
 
 impl AppState {
