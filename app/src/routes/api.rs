@@ -1,3 +1,5 @@
+
+use crate::http::controllers::user_controller;
 use crate::http::controllers::test_controller::register;
 use crate::http::middleware::log_middleware;
 use axum::http::StatusCode;
@@ -18,7 +20,7 @@ pub fn api_routes() -> BuiltRoutes<AppState> {
             v1.get("", hello_api).name("index");
             v1.group(|users| {
                 users.prefix("/users").name("users");
-                users.get("index", hello_api).name("index");
+                users.get("", user_controller::index).name("index");
                 users.get("create", hello_api).name("create");
             });
             v1.post("register", register).name("register");
