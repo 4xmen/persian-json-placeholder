@@ -2094,10 +2094,8 @@ impl Schema {
     // }
 
     pub fn to_struct(&self) -> Vec<ModelData> {
-        // let mut has_id = false;
-        // self.tables
-        //     .iter()
-        //     .map(|(table_name, table)| {
+        // primary key type;
+        // let mut pk_type = "".to_string();
         self.tables
             .iter()
             .map(|(table_name, table)| {

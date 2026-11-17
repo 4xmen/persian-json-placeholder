@@ -1,3 +1,6 @@
+pub mod comment;
+pub mod comment_generated;
+pub use comment_generated::Comment;
 pub mod todo;
 pub mod todo_generated;
 pub use todo_generated::Todo;

@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 #[allow(dead_code)]
 pub struct User {
-    pub id: i64,
+    pub id: u64,
     pub name: String,
     pub email: String,
     pub email_verified_at: Option<time::PrimitiveDateTime>,
