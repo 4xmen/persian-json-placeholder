@@ -10,6 +10,7 @@ use serde::Serialize;
 struct SampleData {
     title: String,
     elapsed_time: Option<String>,
+    url: String,
 }
 
 /// Renders the welcome page using MiniJinja.
@@ -24,6 +25,7 @@ pub async fn index(
     let sample = SampleData {
         title: CONFIG.app.name.clone(),
         elapsed_time: Some(elapsed_ms),
+        url: CONFIG.app.url.clone(),
     };
 
     state.view_with("welcome.j2", sample)

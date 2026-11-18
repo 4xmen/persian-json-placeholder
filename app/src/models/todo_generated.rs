@@ -10,9 +10,9 @@ pub struct Todo {
     pub id: u64,
     pub title: String,
     pub done: bool,
-    pub created_at: Option<time::PrimitiveDateTime>,
-    pub updated_at: Option<time::PrimitiveDateTime>,
-    pub deleted_at: Option<time::PrimitiveDateTime>,
+    pub created_at: Option<time::OffsetDateTime>,
+    pub updated_at: Option<time::OffsetDateTime>,
+    pub deleted_at: Option<time::OffsetDateTime>,
 }
 
 impl Model for Todo {

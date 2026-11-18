@@ -1,8 +1,8 @@
 
 // main model
-use crate::models::{Post, Product, User};
+use crate::models::{Post, Product};
 
-use axum::extract::{Path, RawPathParams, RawQuery, State};
+use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::Json;
 use axum::response::IntoResponse;
@@ -10,7 +10,8 @@ use serde::Serialize;
 use sqlx::FromRow;
 use rustavel_core::config::CONFIG;
 use rustavel_core::config::database::DbPoolType;
-use rustavel_core::state::AppState;
+use crate::models::post::PostResponse;
+use crate::models::product::ProductResponse;
 
 #[derive(Serialize, FromRow)]
 pub struct UserResponseWithoutRelations  {
@@ -25,8 +26,8 @@ pub struct UserResponse {
     pub id: u64,
     pub name: String,
     pub email: String,
-    pub posts: Vec<Post>,
-    pub products: Vec<Product>,
+    pub posts: Vec<PostResponse>,
+    pub products: Vec<ProductResponse>,
     pub created_at: Option<time::OffsetDateTime>,
     pub updated_at: Option<time::OffsetDateTime>,
 }
@@ -53,31 +54,31 @@ pub async fn index(
 }
 
 
-pub async fn create(State(_state): State<AppState>) -> impl IntoResponse {
-    (StatusCode::OK, "to create User called")
-}
+// pub async fn create(State(_state): State<AppState>) -> impl IntoResponse {
+//     (StatusCode::OK, "to create User called")
+// }
+//
+// pub async fn store(State(_state): State<AppState>, params: RawPathParams) -> impl IntoResponse {
+//     (
+//         StatusCode::OK,
+//         println!("to store User called request: {:?}", params),
+//     )
+// }
 
-pub async fn store(State(_state): State<AppState>, params: RawPathParams) -> impl IntoResponse {
-    (
-        StatusCode::OK,
-        println!("to store User called request: {:?}", params),
-    )
-}
+// pub async fn edit(State(_state): State<AppState>, query: RawQuery) -> impl IntoResponse {
+//     (StatusCode::OK, println!("to edit User called id: {:?}", query))
+// }
 
-pub async fn edit(State(_state): State<AppState>, query: RawQuery) -> impl IntoResponse {
-    (StatusCode::OK, println!("to edit User called id: {:?}", query))
-}
-
-pub async fn update(
-    State(_state): State<AppState>,
-    query: RawQuery,
-    params: RawPathParams,
-) -> impl IntoResponse {
-    (
-        StatusCode::OK,
-        println!("to edit User called id and request: {:?}, {:?}", query, params),
-    )
-}
+// pub async fn update(
+//     State(_state): State<AppState>,
+//     query: RawQuery,
+//     params: RawPathParams,
+// ) -> impl IntoResponse {
+//     (
+//         StatusCode::OK,
+//         println!("to edit User called id and request: {:?}, {:?}", query, params),
+//     )
+// }
 
 pub async fn show(
     State(pool): State<DbPoolType>,
@@ -148,16 +149,19 @@ pub async fn show(
             email: user.email,
             created_at: user.created_at,
             updated_at: user.updated_at,
-            posts,
-            products,
+            posts: posts
+                .into_iter()
+                .map(|post| PostResponse::from((post, format!("{}/api/v1/posts",CONFIG.app.url))))
+                .collect(),
+            products: products.into_iter().map(ProductResponse::from).collect(),
         }),
     ))
 }
 
-pub async fn destroy(State(_state): State<AppState>, query: RawQuery) -> impl IntoResponse {
-    (
-        StatusCode::OK,
-        println!("to destroy User called id: {:?}", query),
-    )
-}
+// pub async fn destroy(State(_state): State<AppState>, query: RawQuery) -> impl IntoResponse {
+//     (
+//         StatusCode::OK,
+//         println!("to destroy User called id: {:?}", query),
+//     )
+// }
 
