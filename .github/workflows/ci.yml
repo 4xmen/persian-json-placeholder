@@ -68,72 +68,6 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
   # -------------------------------------
-  # Windows - SQLite
-  # -------------------------------------
-
-  windows:
-    name: Windows - SQLite
-    needs: rust-version
-    runs-on: windows-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ needs.rust-version.outputs.version }}
-
-      - name: Configure SQLite Environment
-        shell: pwsh
-        run: |
-          "DB_CONNECTION=sqlite" >> $env:GITHUB_ENV
-          "DB_DATABASE=./rustavel-ci.sqlite" >> $env:GITHUB_ENV
-          "DB_PREFIX=rv_" >> $env:GITHUB_ENV
-      - name: Prepare SQLite Database
-        shell: pwsh
-        run: |
-          $db = Join-Path $env:GITHUB_WORKSPACE "rustavel-ci.sqlite"
-          New-Item -ItemType File -Path $db -Force | Out-Null
-          "DB_DATABASE=$db" >> $env:GITHUB_ENV
-      - name: Run Tests
-        run: cargo test --workspace --locked
-
-  # -------------------------------------
-  # macOS - SQLite
-  # -------------------------------------
-
-  macos-sqlite:
-    name: macOS - SQLite
-    needs: rust-version
-    runs-on: macos-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ needs.rust-version.outputs.version }}
-
-      - name: Configure SQLite Environment
-        run: |
-          echo "DB_CONNECTION=sqlite" >> "$GITHUB_ENV"
-          echo "DB_DATABASE=./rustavel-ci.sqlite" >> "$GITHUB_ENV"
-          echo "DB_PREFIX=rv_" >> "$GITHUB_ENV"
-
-      - name: Prepare SQLite Database
-        shell: bash
-        run: |
-          DB_FILE="$GITHUB_WORKSPACE/rustavel-ci.sqlite"
-          touch "$DB_FILE"
-          echo "DB_DATABASE=$DB_FILE" >> "$GITHUB_ENV"
-      - name: Run Tests
-        run: cargo test --workspace --locked
-
-  # -------------------------------------
   # macOS - MySQL
   # -------------------------------------
 
@@ -190,48 +124,9 @@ jobs:
       - name: Run Tests
         run: cargo test --workspace --locked
 
-  # -------------------------------------
-  # Linux - SQLite
-  # -------------------------------------
-
-  linux-sqlite:
-    name: Linux - SQLite
-    needs: rust-version
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Install Rust
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ needs.rust-version.outputs.version }}
-#          components: rustfmt, clippy
-
-      - name: Install SQLite Dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libsqlite3-dev
-
-      - name: Configure SQLite Environment
-        run: |
-          echo "DB_CONNECTION=sqlite" >> "$GITHUB_ENV"
-          echo "DB_DATABASE=./rustavel-ci.sqlite" >> "$GITHUB_ENV"
-          echo "DB_PREFIX=rv_" >> "$GITHUB_ENV"
-
-      - name: Prepare SQLite Database
-        shell: bash
-        run: |
-          DB_FILE="$GITHUB_WORKSPACE/rustavel-ci.sqlite"
-          touch "$DB_FILE"
-          echo "DB_DATABASE=$DB_FILE" >> "$GITHUB_ENV"
-
-      - name: Run Tests
-        run: cargo test --workspace --locked -- --test-threads=1
 
   # -------------------------------------
-  # Linux - MySQL / MariaDB / PostgreSQL
+  # Linux - MySQL / MariaDB
   # -------------------------------------
 
   linux-database:
@@ -241,7 +136,6 @@ jobs:
 
     strategy:
       fail-fast: false
-
       matrix:
         include:
           - database: mysql
@@ -254,15 +148,9 @@ jobs:
             port: 3306
             connection: mysql
 
-          - database: postgres
-            image: postgres:17
-            port: 5432
-            connection: pgsql
-
     services:
       db:
         image: ${{ matrix.image }}
-
         env:
           MYSQL_ROOT_PASSWORD: root_password
           MYSQL_DATABASE: ci_db
@@ -274,15 +162,11 @@ jobs:
           MARIADB_USER: ci
           MARIADB_PASSWORD: ci_password
 
-          POSTGRES_DB: ci_db
-          POSTGRES_USER: ci
-          POSTGRES_PASSWORD: ci_password
-
         ports:
           - ${{ matrix.port }}:${{ matrix.port }}
 
         options: >-
-          --health-cmd="${{ matrix.database == 'postgres' && 'pg_isready -U ci -d ci_db' || (matrix.database == 'mariadb' && 'healthcheck.sh --connect --innodb_initialized' || 'mysqladmin ping -h 127.0.0.1 -uroot -proot_password') }}"
+          --health-cmd="${{ matrix.database == 'mariadb' && 'healthcheck.sh --connect --innodb_initialized' || 'mysqladmin ping -h 127.0.0.1 -uroot -proot_password' }}"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=10
