@@ -6,6 +6,7 @@ use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use rustavel_core::route::routing::{BuiltRoutes, Route};
 use rustavel_core::state::AppState;
+use crate::http::controllers::welcome_controller::api;
 use crate::models::todo;
 // import AppState
 
@@ -14,12 +15,13 @@ pub fn api_routes() -> BuiltRoutes<AppState> {
 
     route.group(|r| {
         r.name("api")
-            .prefix("/api")
-            .middleware(log_middleware::log_request);
+            .prefix("/api");
+            // .middleware(log_middleware::log_request);
+        r.get("",api).name("welcome");
 
         r.group(|v1| {
             v1.prefix("/v1").name("v1");
-            v1.get("", hello_api).name("index");
+            v1.get("", api).name("index");
             v1.group(|users| {
                 users.prefix("/users").name("users");
                 users.get("", user_controller::index).name("index");

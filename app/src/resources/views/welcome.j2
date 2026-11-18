@@ -3,33 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome {{ title }}</title>
-    <link rel="stylesheet" href="/assets/css/default.css" >
+    <link rel="stylesheet" href="{{ url }}/assets/css/default.css" >
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+      <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <title>{{ title }} — API آماده برای تست و نمونه‌سازی</title>
+  <meta
+    name="description"
+    content="با JSON Holder به داده‌های نمونه و API آماده برای تست، تمرین و ساخت سریع نمونه‌های اولیه دسترسی داشته باشید."
+  />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="{{ url }}" />
+
+  <!-- Open Graph: نمایش هنگام اشتراک‌گذاری در شبکه‌های اجتماعی -->
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="fa_IR" />
+  <meta property="og:site_name" content="JSON Holder" />
+  <meta
+    property="og:title"
+    content="JSON Holder — API آماده برای تست و نمونه‌سازی"
+  />
+  <meta
+    property="og:description"
+    content="یک API ساده و آماده با داده‌های JSON برای تست، تمرین و نمونه‌سازی."
+  />
+  <meta property="og:url" content="{{ url }}" />
+  <meta
+    property="og:image"
+    content="{{ url }}/assets/images/cover.jpg"
+  />
+  <meta property="og:image:alt" content="پوستر نئونی JSON Holder" />
+
+  <!-- Twitter/X Cards -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta
+    name="twitter:title"
+    content="JSON Holder — API آماده برای تست و نمونه‌سازی"
+  />
+  <meta
+    name="twitter:description"
+    content="یک API ساده و آماده با داده‌های JSON برای تست، تمرین و نمونه‌سازی."
+  />
+  <meta
+    name="twitter:image"
+    content="{{ url }}/assets/images/og-cover.jpg"
+  />
 </head>
 <body>
+  <div class="bg-effects"></div>
+  <div class="grid-pattern"></div>
+
+  <header>
     <div class="container">
-        <!-- Simple SVG Logo -->
-        <div class="logo">
-           <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="210mm" height="297mm" viewBox="0 0 210 297"><path d="M116.837 119.008a3008 3008 0 0 0-12.093-7.205l-3.229-1.902-.012-7.606c-.007-4.184.062-7.607.152-7.607s.834.4 1.654.89c21.45 12.812 22.52 13.418 23.122 13.103.517-.271 14.672-8.684 16.27-9.67l.598-.369-.068-23.053-.068-23.053-7.937-4.71-8.314-4.936c-.357-.213.941-1.038 10.47-6.649l1.893-1.114 8.361 4.966 8.362 4.965-.067 30.691-.068 30.691-5.556 3.338c-12.639 7.593-23.865 14.264-24.223 14.394-.212.077-4.336-2.226-9.247-5.164z" style="fill:#475062;fill-opacity:1" transform="translate(-85.94 -22.103)scale(1.84129)"/><path d="M102.94 134.32c-1.549-.91-6.875-4.095-11.836-7.079l-9.02-5.423.001-21.696.001-21.696 4.959-2.944C101.059 67.16 105.2 64.67 105.69 64.274c.588-.476.885-.282-12.365-8.074-6.004-3.53-12.181-7.195-14.615-8.669l-2.18-1.32-4.17 2.602a1821 1821 0 0 1-5.163 3.212l-.992.61V83.59c0 21.594-.084 30.952-.28 30.952-.154 0-2.327-1.21-4.828-2.69a6624 6624 0 0 0-6.6-3.9l-2.052-1.209.067-30.66.067-30.66 5.556-3.371c3.056-1.854 7.744-4.705 10.418-6.334 4.53-2.762 27.062-16.373 32.95-19.905 1.441-.865 2.776-1.513 2.965-1.44.924.354 29.278 17.372 29.152 17.496-.315.315-12.311 7.346-12.54 7.35-.16.003-3.853-2.092-8.209-4.655s-8.11-4.733-8.345-4.823c-.379-.145-2.412 1.021-14.178 8.134-.473.286-.86.558-.86.605 0 .108 5.814 3.597 17.86 10.718l10.716 6.336 1.19.705.07 7.754c.05 5.395-.019 7.863-.223 8.11-.162.194-.79.634-1.394.977s-4.67 2.745-9.036 5.337a6911 6911 0 0 1-10.354 6.14L95.9 85.98l-.156 2.44c-.175 2.73-.08 24.46.107 24.61.066.052 1.132.693 2.369 1.423 8.318 4.91 21.96 13.107 21.96 13.195 0 .196-13.762 8.324-14.094 8.324-.181 0-1.597-.744-3.147-1.654z" style="fill:#df4721;fill-opacity:1" transform="translate(-85.94 -22.103)scale(1.84129)"/><path d="M51.896 166.556v-18.993h7.597q2.142 0 3.697.765 1.568.752 2.409 2.154.854 1.39.854 3.314 0 1.874-.892 3.25-.892 1.377-2.511 2.13-1.606.738-3.786.738h-5.01v-3.148h5.01q1.032 0 1.784-.37t1.16-1.032q.408-.676.408-1.568 0-.918-.408-1.568-.408-.663-1.16-1.032-.752-.37-1.797-.37h-3.429v15.73zm10.771 0-4.346-8.579h4.117l4.436 8.579zm10.848.28q-1.428 0-2.499-.612-1.058-.624-1.644-1.81-.586-1.198-.586-2.893v-8.426h3.76v7.737q0 1.351.65 2.065.65.701 1.823.701.778 0 1.364-.318.599-.319.93-.995.345-.675.345-1.708v-7.482h3.747v13.46h-3.684v-3.505h.638q-.638 1.785-1.823 2.792-1.173.994-3.021.994m16.15.051q-1.746 0-3.11-.535-1.364-.548-2.18-1.568t-.943-2.46h3.697q.101.88.739 1.376.637.497 1.733.497 1.046 0 1.632-.395.6-.395.6-1.02 0-.535-.46-.866-.446-.332-1.274-.485l-2.359-.459q-1.963-.382-2.982-1.376t-1.02-2.55q0-1.274.688-2.23.701-.956 1.976-1.479 1.287-.523 3.046-.523 1.747 0 3.047.561 1.3.548 2.027 1.568.739 1.02.777 2.422h-3.48q-.012-.816-.637-1.351t-1.632-.535q-.968 0-1.516.42-.549.408-.549 1.007 0 .523.434.854.433.332 1.198.497l2.55.498q2.039.395 2.995 1.3.969.892.969 2.383 0 1.339-.765 2.346-.752.994-2.103 1.555-1.339.548-3.098.548m15.972-13.792v2.944h-8.834v-2.944zm-6.514-3.671h3.76V162.4q0 .676.268.943.28.268 1.046.268h1.44v2.945h-2.192q-2.218 0-3.276-.867-1.046-.867-1.046-2.703z" aria-label="Rust" style="font-weight:700;font-size:26.1056px;font-family:inter;-inkscape-font-specification:inter;text-align:center;text-anchor:middle;fill:#df4721;stroke-width:3.334;stroke-linejoin:round" transform="translate(-84.725 -26.006)scale(1.84129)"/><path d="M113.084 166.94q-1.338 0-2.384-.447-1.045-.446-1.644-1.338-.6-.905-.6-2.243 0-1.135.422-1.887.42-.765 1.147-1.224.74-.471 1.682-.713.956-.243 2.002-.332 1.236-.127 1.963-.242.726-.115 1.045-.332.319-.216.319-.65v-.089q0-.497-.268-.867-.268-.382-.765-.599-.484-.216-1.173-.216-.688 0-1.223.216-.523.217-.829.612t-.357.918h-3.53q.089-1.39.815-2.41.74-1.019 2.065-1.567 1.326-.56 3.174-.56 1.377 0 2.46.318 1.084.306 1.823.905.752.599 1.135 1.453.382.854.382 1.937v9.127h-3.671v-1.9h-.051q-.357.664-.88 1.135-.522.472-1.274.74-.752.255-1.785.255m1.045-2.614q.905 0 1.555-.33.663-.332 1.02-.906t.357-1.3v-1.351q-.166.089-.433.178-.268.077-.625.153l-.777.14q-.421.077-.867.14-.65.103-1.173.32-.523.203-.829.56-.305.344-.305.88 0 .471.254.815.255.345.727.523t1.096.178m12.51 2.384-4.984-13.46h3.939l2.218 6.653q.395 1.186.74 2.371.343 1.186.687 2.384h-.892q.332-1.198.663-2.384.344-1.185.714-2.37l2.192-6.655h3.9l-4.996 13.461zm16.32.306q-2.04 0-3.557-.892-1.504-.905-2.346-2.499-.828-1.593-.828-3.632 0-2.065.841-3.646.854-1.593 2.345-2.498t3.417-.905q1.491 0 2.702.51 1.21.497 2.09 1.44.88.93 1.352 2.205.484 1.275.484 2.817v1.007h-11.893v-2.396h10.083l-1.695.573q0-1.02-.37-1.759-.37-.74-1.058-1.134-.676-.408-1.619-.408-.93 0-1.606.408-.676.395-1.045 1.134-.37.74-.37 1.76v1.63q0 1.046.37 1.836.382.778 1.096 1.211.714.421 1.72.421.74 0 1.301-.204.574-.217.956-.599.395-.395.56-.918h3.43q-.242 1.339-1.135 2.358-.892 1.02-2.243 1.606-1.351.574-2.983.574m12.274-19.299v18.993h-3.76v-18.993z" aria-label="avel" style="font-weight:700;font-size:26.1056px;font-family:inter;-inkscape-font-specification:inter;text-align:center;text-anchor:middle;fill:#475062;stroke-width:3.334;stroke-linejoin:round" transform="translate(-84.725 -26.006)scale(1.84129)"/></svg>
-        </div>
-
-        <h1>Welcome to Rustavel</h1>
-        <h2> {{ title }} </h2>
-        <p class="subtitle">
-            Everything is ready. Get started now and build your application.
-        </p>
-
-        <div class="actions">
-            <a href="#" class="btn btn-primary">Get Started</a>
-            <a href="#" class="btn btn-secondary">Documentation</a>
-        </div>
-
-        <div class="links">
-            <a href="#">Documentation</a>
-            <a href="https://github.com/4xmen/rustavel">Rustavel</a>
-            <a href="https://github.com/4xmen/rustavel">GitHub</a>
-        </div>
+      <div class="badge">API آزمایشی • آماده استفاده</div>
+      <h1>JSON Placeholder پارسی</h1>
+      <p class="hero-desc">
+        یک REST API جعلی و رایگان با داده‌های پارسی برای تست، پروتوتایپ و یادگیری توسعه فرانت‌اند و موبایل
+      </p>
+      <div class="base-url">
+        <span id="baseUrl">{{ url }}/api/v1</span>
+        <button onclick="copyText('{{ url }}/api/v1', this)" title="کپی کردن">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+        </button>
+      </div>
     </div>
-    {% include "partials/dev/performance.j2" %}
+  </header>
+
+  <main>
+    <!-- About -->
+    <section>
+      <div class="container">
+        <h2 class="section-title"><span>چیست؟</span></h2>
+        <p class="section-sub">معرفی کوتاه سرویس</p>
+
+        <div class="about-card">
+          <p>
+            <strong style="color: var(--text);">JSON Placeholder پارسی</strong> یک سرویس REST API جعلی (Fake) است که برای توسعه‌دهندگان فرانت‌اند، موبایل و بک‌اند طراحی شده.
+            با استفاده از این API می‌توانید بدون نیاز به راه‌اندازی سرور واقعی، داده‌های پارسی دریافت کنید و منطق برنامه خود را تست نمایید.
+          </p>
+          <p>
+            این سرویس از استانداردهای RESTful پیروی می‌کند و داده‌هایی مانند کاربران، محصولات، دسته‌بندی‌ها، نوشته‌ها و تسک‌ها را در اختیار شما قرار می‌دهد.
+            تمام پاسخ‌ها به صورت JSON برگردانده می‌شوند و برای توسعه سریع، آموزش و ساخت پروتوتایپ ایده‌آل است.
+          </p>
+
+          <div class="features">
+            <div class="feature">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              داده‌های کاملاً پارسی
+            </div>
+            <div class="feature">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              پشتیبانی از GET
+            </div>
+            <div class="feature">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              بدون نیاز به احراز هویت
+            </div>
+            <div class="feature">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              آماده برای تست سریع
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Endpoints -->
+    <section>
+      <div class="container">
+        <h2 class="section-title"><span>اندپوینت‌ها</span></h2>
+        <p class="section-sub">لیست کامل موجودیت‌های پشتیبانی‌شده همراه با آدرس‌های قابل کپی</p>
+
+        <div class="entities">
+
+        <!-- Users -->
+                  <article class="entity-card">
+                    <div class="entity-header">
+                      <div class="entity-name">
+                        <div class="icon">👤</div>
+                        کاربران
+                      </div>
+                      <span class="entity-tag">user</span>
+                    </div>
+                    <p class="entity-desc">اطلاعات کاربران سیستم. برای دسترسی به یک کاربر خاص از شناسه عددی (id) استفاده می‌شود.</p>
+
+                    <div class="endpoints">
+                      <div class="endpoint">
+                        <div class="endpoint-label">فهرست کاربران</div>
+                        <div class="endpoint-row">
+                          <span class="method">GET</span>
+                          <span class="url">{{ url }}/api/v1/users</span>
+                          <button class="copy-btn" onclick="copyText('{{ url }}/api/v1/users', this)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            کپی
+                          </button>
+                        </div>
+                      </div>
+
+                      <div class="endpoint">
+                        <div class="endpoint-label">نمایش یک کاربر (با id)</div>
+                        <div class="endpoint-row">
+                          <span class="method">GET</span>
+                          <span class="url">{{ url }}/api/v1/users/[id]</span>
+                          <button class="copy-btn" onclick="copyText('{{ url }}/api/v1/users/1', this)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            کپی
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+
+                  <!-- Todos -->
+                  <article class="entity-card">
+                    <div class="entity-header">
+                      <div class="entity-name">
+                        <div class="icon">✅</div>
+                        تسک‌ها (Todo)
+                      </div>
+                      <span class="entity-tag">todo</span>
+                    </div>
+                    <p class="entity-desc">لیست کارهای انجام‌دادنی. این موجودیت فقط فهرست کامل را پشتیبانی می‌کند و نمایش تکی ندارد.</p>
+
+                    <div class="endpoints">
+                      <div class="endpoint">
+                        <div class="endpoint-label">فهرست تسک‌ها</div>
+                        <div class="endpoint-row">
+                          <span class="method">GET</span>
+                          <span class="url">{{ url }}/api/v1/todos</span>
+                          <button class="copy-btn" onclick="copyText('{{ url }}/api/v1/todos', this)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            کپی
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </article>
+
+          <!-- Categories -->
+          <article class="entity-card">
+            <div class="entity-header">
+              <div class="entity-name">
+                <div class="icon">📂</div>
+                دسته‌بندی‌ها
+              </div>
+              <span class="entity-tag">category</span>
+            </div>
+            <p class="entity-desc">در این بخش دسته‌بندی محصولات نمایش داده می‌شود. می‌توانید لیست کامل یا یک دسته‌بندی خاص را با استفاده از slug دریافت کنید.</p>
+
+            <div class="endpoints">
+              <div class="endpoint">
+                <div class="endpoint-label">فهرست دسته‌بندی‌ها</div>
+                <div class="endpoint-row">
+                  <span class="method">GET</span>
+                  <span class="url">{{ url }}/api/v1/categories</span>
+                  <button class="copy-btn" onclick="copyText('{{ url }}/api/v1/categories', this)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    کپی
+                  </button>
+                </div>
+              </div>
+
+              <div class="endpoint">
+                <div class="endpoint-label">نمایش یک دسته به تنهایی</div>
+                <div class="endpoint-row">
+                  <span class="method">GET</span>
+                  <span class="url">{{ url }}/api/v1/categories/[slug]</span>
+                  <button class="copy-btn" onclick="copyText('{{ url }}/api/v1/categories/mobile-tablet', this)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    کپی
+                  </button>
+                </div>
+{#                <div class="example">مثال: <code>{{ url }}/api/v1/categories/mobile-tablet</code></div>#}
+              </div>
+            </div>
+          </article>
+
+          <!-- Products -->
+          <article class="entity-card">
+            <div class="entity-header">
+              <div class="entity-name">
+                <div class="icon">🛍️</div>
+                محصولات
+              </div>
+              <span class="entity-tag">product</span>
+            </div>
+            <p class="entity-desc">لیست محصولات به همراه جزئیات هر محصول. هر محصول دارای دیدگاه (نظرات) نیز می‌باشد و با slug قابل دسترسی است.</p>
+
+            <div class="endpoints">
+              <div class="endpoint">
+                <div class="endpoint-label">فهرست محصولات</div>
+                <div class="endpoint-row">
+                  <span class="method">GET</span>
+                  <span class="url">{{ url }}/api/v1/products</span>
+                  <button class="copy-btn" onclick="copyText('{{ url }}/api/v1/products', this)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    کپی
+                  </button>
+                </div>
+              </div>
+
+              <div class="endpoint">
+                <div class="endpoint-label">نمایش یک محصول</div>
+                <div class="endpoint-row">
+                  <span class="method">GET</span>
+                  <span class="url">{{ url }}/api/v1/products/[slug]</span>
+                  <button class="copy-btn" onclick="copyText('{{ url }}/api/v1/products/mobile-accessories-vijeh5966', this)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    کپی
+                  </button>
+                </div>
+{#                <div class="example">مثال: <code>{{ url }}/api/v1/products/iphone-15-pro</code></div>#}
+              </div>
+            </div>
+          </article>
+
+          <!-- Posts -->
+          <article class="entity-card">
+            <div class="entity-header">
+              <div class="entity-name">
+                <div class="icon">📝</div>
+                نوشته‌ها
+              </div>
+              <span class="entity-tag">post</span>
+            </div>
+            <p class="entity-desc">مجموعه نوشته‌ها و مقالات. هر نوشته با slug قابل دسترسی است و دارای دیدگاه (نظرات کاربران) می‌باشد.</p>
+
+            <div class="endpoints">
+              <div class="endpoint">
+                <div class="endpoint-label">فهرست نوشته‌ها</div>
+                <div class="endpoint-row">
+                  <span class="method">GET</span>
+                  <span class="url">{{ url }}/api/v1/posts</span>
+                  <button class="copy-btn" onclick="copyText('{{ url }}/api/v1/posts', this)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    کپی
+                  </button>
+                </div>
+              </div>
+
+              <div class="endpoint">
+                <div class="endpoint-label">نمایش یک نوشته</div>
+                <div class="endpoint-row">
+                  <span class="method">GET</span>
+                  <span class="url">{{ url }}/api/v1/posts/[slug]</span>
+                  <button class="copy-btn" onclick="copyText('{{ url }}/api/v1/posts/tarik7678-parastoo8114', this)">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    کپی
+                  </button>
+                </div>
+{#                <div class="example">مثال: <code>{{ url }}/api/v1/posts/how-to-learn-js</code></div>#}
+              </div>
+
+{#              <div class="endpoint">#}
+{#                <div class="endpoint-label">دیدگاه‌های یک نوشته</div>#}
+{#                <div class="endpoint-row">#}
+{#                  <span class="method">GET</span>#}
+{#                  <span class="url">{{ url }}/api/v1/posts/[slug]/comments</span>#}
+{#                  <button class="copy-btn" onclick="copyText('{{ url }}/api/v1/posts/[slug]/comments', this)">#}
+{#                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>#}
+{#                    کپی#}
+{#                  </button>#}
+{#                </div>#}
+{#              </div>#}
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>
+        ساخته شده با 💜 برای توسعه‌دهندگان پارسی‌زبان
+      </p>
+      {% include "partials/dev/performance.j2" %}
+    </div>
+  </footer>
+
+  <div class="toast" id="toast">کپی شد!</div>
+
+  <script>
+    function copyText(text, btn) {
+      navigator.clipboard.writeText(text).then(() => {
+        // Update button
+        const original = btn.innerHTML;
+        btn.classList.add('copied');
+        btn.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          کپی شد
+        `;
+
+        // Show toast
+        const toast = document.getElementById('toast');
+        toast.classList.add('show');
+
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = original;
+          toast.classList.remove('show');
+        }, 1800);
+      }).catch(err => {
+        console.error('خطا در کپی:', err);
+      });
+    }
+  </script>
 </body>
 </html>
