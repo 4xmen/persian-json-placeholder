@@ -1,15 +1,12 @@
 // use std::vec;
+use crate::models::Todo;
 use axum::Json;
-use axum::extract::{RawPathParams, RawQuery, State};
+use axum::extract::State;
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
-use rustavel_core::state::AppState;
-use time::macros::datetime;
 use rustavel_core::config::database::DbPoolType;
-use crate::models::Todo;
-use rustavel_core::helper::datetime::TimeExt;
 
-pub async fn index(State(pool): State<DbPoolType>,)  -> Result<impl IntoResponse, StatusCode>  {
+pub async fn index(State(pool): State<DbPoolType>) -> Result<impl IntoResponse, StatusCode> {
     let sql = r#"
         SELECT * FROM todos
         WHERE deleted_at IS NULL

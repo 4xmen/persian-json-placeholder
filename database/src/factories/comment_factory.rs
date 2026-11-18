@@ -23,5 +23,4 @@ pub struct CommentFactory {
 }
 fn comment() -> String {
     persian_lorem(false, random(30, 50) as usize)
-
 }

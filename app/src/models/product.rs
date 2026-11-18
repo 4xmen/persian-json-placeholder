@@ -1,10 +1,9 @@
-use serde::Serialize;
 use crate::helper::general::asset_url;
+use serde::Serialize;
 // this is an impl from generated model
 use super::Product;
 
 impl Product {}
-
 
 #[derive(Serialize)]
 pub struct ProductResponse {

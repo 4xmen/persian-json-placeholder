@@ -27,6 +27,15 @@ impl Model for Comment {
         "id"
     }
     fn columns() -> &'static [&'static str] {
-        &["id", "body", "author", "email", "commentable_type", "commentable_id", "created_at", "updated_at"]
+        &[
+            "id",
+            "body",
+            "author",
+            "email",
+            "commentable_type",
+            "commentable_id",
+            "created_at",
+            "updated_at",
+        ]
     }
 }

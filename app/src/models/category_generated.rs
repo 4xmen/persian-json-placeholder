@@ -26,6 +26,14 @@ impl Model for Category {
         "id"
     }
     fn columns() -> &'static [&'static str] {
-        &["id", "name", "description", "slug", "parent_id", "image", "thumb"]
+        &[
+            "id",
+            "name",
+            "description",
+            "slug",
+            "parent_id",
+            "image",
+            "thumb",
+        ]
     }
 }

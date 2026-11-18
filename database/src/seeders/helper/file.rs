@@ -1,7 +1,4 @@
-use std::{
-    fs, io,
-    path::{Path, PathBuf},
-};
+use std::{fs, io, path::Path};
 fn matches_pattern(name: &str, pattern: &str) -> bool {
     let parts: Vec<&str> = pattern.split('*').collect();
     let mut rest = name;

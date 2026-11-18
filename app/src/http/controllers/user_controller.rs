@@ -1,20 +1,19 @@
-
 // main model
 use crate::models::{Post, Product};
 
-use axum::extract::{Path, State};
-use axum::http::StatusCode;
-use axum::Json;
-use axum::response::IntoResponse;
-use serde::Serialize;
-use sqlx::FromRow;
-use rustavel_core::config::CONFIG;
-use rustavel_core::config::database::DbPoolType;
 use crate::models::post::PostResponse;
 use crate::models::product::ProductResponse;
+use axum::Json;
+use axum::extract::{Path, State};
+use axum::http::StatusCode;
+use axum::response::IntoResponse;
+use rustavel_core::config::CONFIG;
+use rustavel_core::config::database::DbPoolType;
+use serde::Serialize;
+use sqlx::FromRow;
 
 #[derive(Serialize, FromRow)]
-pub struct UserResponseWithoutRelations  {
+pub struct UserResponseWithoutRelations {
     id: u64,
     name: String,
     email: String,
@@ -31,9 +30,7 @@ pub struct UserResponse {
     pub created_at: Option<time::OffsetDateTime>,
     pub updated_at: Option<time::OffsetDateTime>,
 }
-pub async fn index(
-    State(pool): State<DbPoolType>,
-) -> Result<impl IntoResponse, StatusCode> {
+pub async fn index(State(pool): State<DbPoolType>) -> Result<impl IntoResponse, StatusCode> {
     let sql = r#"
         SELECT id, name, email,
         created_at,
@@ -52,7 +49,6 @@ pub async fn index(
 
     Ok(Json(users))
 }
-
 
 // pub async fn create(State(_state): State<AppState>) -> impl IntoResponse {
 //     (StatusCode::OK, "to create User called")
@@ -84,7 +80,6 @@ pub async fn show(
     State(pool): State<DbPoolType>,
     Path(id): Path<u64>,
 ) -> Result<impl IntoResponse, StatusCode> {
-
     let user_sql = r#"
         SELECT id, name, email, created_at, updated_at
         FROM users
@@ -151,7 +146,7 @@ pub async fn show(
             updated_at: user.updated_at,
             posts: posts
                 .into_iter()
-                .map(|post| PostResponse::from((post, format!("{}/api/v1/posts",CONFIG.app.url))))
+                .map(|post| PostResponse::from((post, format!("{}/api/v1/posts", CONFIG.app.url))))
                 .collect(),
             products: products.into_iter().map(ProductResponse::from).collect(),
         }),
@@ -164,4 +159,3 @@ pub async fn show(
 //         println!("to destroy User called id: {:?}", query),
 //     )
 // }
-

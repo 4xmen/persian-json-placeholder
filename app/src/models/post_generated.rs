@@ -27,6 +27,15 @@ impl Model for Post {
         "id"
     }
     fn columns() -> &'static [&'static str] {
-        &["id", "title", "slug", "body", "user_id", "image", "created_at", "updated_at"]
+        &[
+            "id",
+            "title",
+            "slug",
+            "body",
+            "user_id",
+            "image",
+            "created_at",
+            "updated_at",
+        ]
     }
 }

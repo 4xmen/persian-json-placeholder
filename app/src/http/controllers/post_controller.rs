@@ -1,23 +1,21 @@
 // main model
 use crate::models::{Comment, Post};
 
-use axum::extract::{OriginalUri, Path, Query, RawPathParams, RawQuery, State};
-use axum::http::StatusCode;
+use crate::helper::general::{PaginateBuilder, asset_url};
+use crate::models::post::PostResponse;
 use axum::Json;
+use axum::extract::{OriginalUri, Path, Query, State};
+use axum::http::StatusCode;
 use axum::response::IntoResponse;
-use serde::{Deserialize, Serialize};
 use rustavel_core::config::CONFIG;
 use rustavel_core::config::database::DbPoolType;
-use rustavel_core::state::AppState;
-use crate::helper::general::{asset_url, PaginateBuilder};
-use crate::models::post::PostResponse;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize)]
 pub struct PaginationQuery {
     pub page: Option<usize>,
     pub max: Option<usize>,
 }
-
 
 #[derive(Serialize, Debug)]
 pub struct SinglePostResponse {
@@ -50,14 +48,11 @@ pub async fn index(
     OriginalUri(uri): OriginalUri,
     Query(query): Query<PaginationQuery>,
 ) -> impl IntoResponse {
-
     let page = query.page.unwrap_or(1).max(1);
     let max = query.max.unwrap_or(10).clamp(1, 100);
 
     // Total count
-    let count: i64 = sqlx::query_scalar(
-        "SELECT COUNT(*) FROM posts"
-    )
+    let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM posts")
         .fetch_one(&pool)
         .await
         .unwrap_or(0);
@@ -83,18 +78,13 @@ pub async fn index(
         .unwrap_or_default();
 
     // Convert Post -> PostResponse
-    let data: Vec<PostResponse> =posts
+    let data: Vec<PostResponse> = posts
         .into_iter()
         .map(|post| PostResponse::from((post, format!("{}/api/v1/posts", CONFIG.app.url))))
         .collect();
 
     // Build pagination response
-    let pagination = PaginateBuilder::new(
-        max,
-        count,
-        page,
-        uri.to_string(),
-    ).build(data);
+    let pagination = PaginateBuilder::new(max, count, page, uri.to_string()).build(data);
 
     Json(pagination)
 }
@@ -131,11 +121,7 @@ pub async fn index(
 //     )
 // }
 
-pub async fn show(
-    State(pool): State<DbPoolType>,
-    Path(slug): Path<String>,
-) -> impl IntoResponse {
-
+pub async fn show(State(pool): State<DbPoolType>, Path(slug): Path<String>) -> impl IntoResponse {
     let sql_post = "SELECT * FROM posts WHERE slug = ?";
 
     let post = match sqlx::query_as::<_, Post>(sql_post)
@@ -161,7 +147,6 @@ pub async fn show(
         sqlx::query_as::<_, UserResponse>(sql_user)
             .bind(post.user_id)
             .fetch_one(&pool),
-
         sqlx::query_as::<_, Comment>(sql_comment)
             .bind(post.id)
             .fetch_all(&pool),
@@ -178,14 +163,15 @@ pub async fn show(
         image: asset_url(&Some(post.image)),
         created_at: post.created_at,
         updated_at: post.updated_at,
-        url: format!("{}/api/v1/posts",CONFIG.app.url),
+        url: format!("{}/api/v1/posts", CONFIG.app.url),
         user,
     };
 
     Json(PostShowResponse {
         post: post_response,
         comments,
-    }).into_response()
+    })
+    .into_response()
 }
 
 // pub async fn destroy(State(_state): State<AppState>, query: RawQuery) -> impl IntoResponse {

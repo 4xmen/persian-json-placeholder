@@ -24,8 +24,7 @@ impl PostSeeder {
         images.shuffle(&mut rng());
         let users = PostFactory::factory().count(70).create();
 
-        let mut i = 0;
-        for user in users {
+        for (i, user) in users.into_iter().enumerate() {
             sqlx::query(sql)
                 .bind(user.title)
                 .bind(user.slug)
@@ -41,7 +40,6 @@ impl PostSeeder {
                 .bind(user.updated_at)
                 .execute(&ctx.pool)
                 .await?;
-            i += 1;
         }
 
         Ok(true)

@@ -5,22 +5,16 @@ use crate::seeders::helper::file::find_file;
 #[allow(unused_imports)]
 use anyhow::{Result, anyhow};
 use rand::prelude::SliceRandom;
+use rustavel_core::config::database::DbPoolType;
 use rustavel_core::helper::datetime::now_ymd_hms;
 use rustavel_core::helper::number::random;
 use rustavel_core::helper::persian::{persian_lorem_html, persian_slug};
-use sqlx::AnyPool;
 use std::collections::HashMap;
-use std::fmt::format;
-use rustavel_core::config::database::DbPoolType;
 // model: Product (models live in the app crate and can't be imported here)
 
 pub struct ProductSeeder;
 
 impl ProductSeeder {
-    /**
-     * Run the database seeds.
-     */
-
     pub async fn run(ctx: SeederContext) -> Result<bool> {
         let mut images: HashMap<u64, Vec<String>> = HashMap::new();
         let cats = get_category(&ctx.pool).await?;
@@ -79,7 +73,7 @@ impl ProductSeeder {
             image_list.shuffle(&mut rng);
 
             for (index, main_image) in image_list.iter().enumerate() {
-                let price: u64 = random(11, 1000) as u64 * 1000000 ;
+                let price: u64 = random(11, 1000) as u64 * 1000000;
                 let stock = random(0, 120);
 
                 let (name, slug) = persian_slug();
@@ -100,9 +94,9 @@ impl ProductSeeder {
                     .bind(persian_lorem_html(true, 120, "<br><br>"))
                     .bind(price)
                     .bind(stock as u64)
-                    .bind(cat_id as u64)
+                    .bind(cat_id)
                     .bind(user_id as u64)
-                    .bind(&main_image.replace("storage/app/public", "storage"))
+                    .bind(main_image.replace("storage/app/public", "storage"))
                     .bind(&thumb)
                     .bind(&now)
                     .bind(&now)
@@ -132,13 +126,13 @@ impl ProductSeeder {
 
                 // insert main category
                 sqlx::query(rel_sql)
-                    .bind(product_id )
-                    .bind(cat_id  as u64)
+                    .bind(product_id)
+                    .bind(cat_id)
                     .execute(&ctx.pool)
                     .await?;
                 // insert parent category
                 sqlx::query(rel_sql)
-                    .bind(product_id )
+                    .bind(product_id)
                     .bind(cats_parent.get(&cat_id).unwrap())
                     .execute(&ctx.pool)
                     .await?;
@@ -155,7 +149,7 @@ impl ProductSeeder {
 
                     sqlx::query(image_sql)
                         .bind(product_id as u64)
-                        .bind(&image.replace("storage/app/public", "storage"))
+                        .bind(image.replace("storage/app/public", "storage"))
                         .bind(&thumb)
                         .execute(&ctx.pool)
                         .await?;

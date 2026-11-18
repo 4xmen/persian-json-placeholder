@@ -1,15 +1,14 @@
 // main model
-use crate::models::{Category, Todo};
+use crate::models::Category;
 
 use crate::models::category::CategoryResponse;
 use axum::Json;
-use axum::extract::{Path, RawPathParams, RawQuery, State};
+use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
-use serde::Serialize;
 use rustavel_core::config::CONFIG;
 use rustavel_core::config::database::DbPoolType;
-use rustavel_core::state::AppState;
+use serde::Serialize;
 
 pub async fn index(State(pool): State<DbPoolType>) -> Result<impl IntoResponse, StatusCode> {
     let sql = r#"
@@ -66,7 +65,6 @@ pub async fn index(State(pool): State<DbPoolType>) -> Result<impl IntoResponse, 
 // }
 //
 
-
 #[derive(Serialize)]
 pub struct CategoryResponseSingle {
     pub id: u64,
@@ -81,11 +79,7 @@ pub struct CategoryResponseSingle {
     pub children: Vec<CategoryResponse>,
 }
 
-pub async fn show(
-    State(pool): State<DbPoolType>,
-    Path(slug): Path<String>,
-) -> impl IntoResponse {
-
+pub async fn show(State(pool): State<DbPoolType>, Path(slug): Path<String>) -> impl IntoResponse {
     let cat_sql = "SELECT * FROM categories WHERE slug = ?";
 
     let category = match sqlx::query_as::<_, Category>(cat_sql)
@@ -116,7 +110,6 @@ pub async fn show(
                 None => Ok(None),
             }
         },
-
         sqlx::query_as::<_, Category>(child_sql)
             .bind(category.id)
             .fetch_all(&pool),
@@ -134,11 +127,16 @@ pub async fn show(
         image: category.image,
         thumb: category.thumb,
 
-        parent: parent.map(|cat| CategoryResponse::from((cat, format!("{}/api/v1/categories", CONFIG.app.url)))),
+        parent: parent.map(|cat| {
+            CategoryResponse::from((cat, format!("{}/api/v1/categories", CONFIG.app.url)))
+        }),
 
         children: children
             .into_iter()
-            .map(|cat| CategoryResponse::from((cat, format!("{}/api/v1/categories", CONFIG.app.url)))).collect(),
+            .map(|cat| {
+                CategoryResponse::from((cat, format!("{}/api/v1/categories", CONFIG.app.url)))
+            })
+            .collect(),
     };
 
     Json(response).into_response()

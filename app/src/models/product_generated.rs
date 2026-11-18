@@ -31,6 +31,19 @@ impl Model for Product {
         "id"
     }
     fn columns() -> &'static [&'static str] {
-        &["id", "name", "description", "slug", "price", "quantity", "category_id", "user_id", "image", "thumb", "created_at", "updated_at"]
+        &[
+            "id",
+            "name",
+            "description",
+            "slug",
+            "price",
+            "quantity",
+            "category_id",
+            "user_id",
+            "image",
+            "thumb",
+            "created_at",
+            "updated_at",
+        ]
     }
 }

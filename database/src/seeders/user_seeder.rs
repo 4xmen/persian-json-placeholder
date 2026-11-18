@@ -26,7 +26,7 @@ impl UserSeeder {
 
         let pass_hasher = PasswordHasher::new(PasswordDriver::Bcrypt { cost: 8 });
         for user in users {
-            let n = sqlx::query(sql)
+            let _n = sqlx::query(sql)
                 .bind(user.name)
                 .bind(format!("{}{}", random(11, 99), user.email))
                 .bind(pass_hasher.hash(&user.password).unwrap())

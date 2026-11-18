@@ -1,8 +1,7 @@
-use serde::{Deserialize, Serialize};
 use crate::helper::general::asset_url;
-use crate::models::post::PostResponse;
+use serde::{Deserialize, Serialize};
 // this is an impl from generated model
-use super::{Image};
+use super::Image;
 
 impl Image {}
 
@@ -15,7 +14,7 @@ pub struct ImageResponse {
 
 impl From<Image> for ImageResponse {
     fn from(img: Image) -> Self {
-        Self{
+        Self {
             image: asset_url(&Some(img.image.as_str().to_owned())),
             thumb: asset_url(&Some(img.thumb.as_str().to_owned())),
         }

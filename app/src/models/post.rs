@@ -1,11 +1,9 @@
-use serde::Serialize;
 use crate::helper::general::asset_url;
-use crate::http::controllers::user_controller::UserResponse;
+use serde::Serialize;
 // this is an impl from generated model
-use super::{Post};
+use super::Post;
 
 impl Post {}
-
 
 #[derive(Serialize)]
 pub struct PostResponse {
@@ -20,7 +18,6 @@ pub struct PostResponse {
     pub url: String,
 }
 
-
 impl From<(Post, String)> for PostResponse {
     fn from((post, base_url): (Post, String)) -> Self {
         Self {
@@ -32,7 +29,7 @@ impl From<(Post, String)> for PostResponse {
             image: asset_url(&Some(post.image.as_str().to_owned())),
             created_at: post.created_at,
             updated_at: post.updated_at,
-            url: format!("{}/{}", base_url,post.slug),
+            url: format!("{}/{}", base_url, post.slug),
         }
     }
 }

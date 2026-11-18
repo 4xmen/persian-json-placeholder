@@ -1,23 +1,19 @@
-
-use crate::http::controllers::{category_controller, post_controller, product_controller, todo_controller, user_controller};
 use crate::http::controllers::test_controller::register;
-use crate::http::middleware::log_middleware;
-use axum::http::StatusCode;
-use axum::response::IntoResponse;
+use crate::http::controllers::welcome_controller::api;
+use crate::http::controllers::{
+    category_controller, post_controller, product_controller, todo_controller, user_controller,
+};
 use rustavel_core::route::routing::{BuiltRoutes, Route};
 use rustavel_core::state::AppState;
-use crate::http::controllers::welcome_controller::api;
-use crate::models::todo;
 // import AppState
 
 pub fn api_routes() -> BuiltRoutes<AppState> {
     let mut route = Route::new();
 
     route.group(|r| {
-        r.name("api")
-            .prefix("/api");
-            // .middleware(log_middleware::log_request);
-        r.get("",api).name("welcome");
+        r.name("api").prefix("/api");
+        // .middleware(log_middleware::log_request);
+        r.get("", api).name("welcome");
 
         r.group(|v1| {
             v1.prefix("/v1").name("v1");
@@ -35,7 +31,9 @@ pub fn api_routes() -> BuiltRoutes<AppState> {
             v1.group(|products| {
                 products.prefix("/products").name("products");
                 products.get("", product_controller::index).name("index");
-                products.get("/{slug}", product_controller::show).name("show");
+                products
+                    .get("/{slug}", product_controller::show)
+                    .name("show");
             });
             v1.group(|todos| {
                 todos.prefix("/todos").name("todos");
@@ -57,6 +55,6 @@ pub fn api_routes() -> BuiltRoutes<AppState> {
     })
 }
 
-async fn hello_api() -> impl IntoResponse {
-    (StatusCode::OK, "hello api")
-}
+// async fn hello_api() -> impl IntoResponse {
+//     (StatusCode::OK, "hello api")
+// }

@@ -1,22 +1,18 @@
 // main model
-use crate::models::{Category, Comment, Image, Post, Product};
+use crate::models::{Category, Comment, Image, Product};
 
-use axum::extract::{OriginalUri, Path, Query, RawPathParams, RawQuery, State};
-use axum::http::StatusCode;
-use axum::Json;
-use axum::response::IntoResponse;
-use serde::Serialize;
-use rustavel_core::config::CONFIG;
-use rustavel_core::config::database::DbPoolType;
-use rustavel_core::state::AppState;
-use crate::helper::general::{asset_url, PaginateBuilder};
+use crate::helper::general::{PaginateBuilder, asset_url};
 use crate::http::controllers::post_controller::{PaginationQuery, UserResponse};
 use crate::models::category::CategoryResponse;
 use crate::models::image::ImageResponse;
-use crate::models::post::PostResponse;
 use crate::models::product::ProductResponse;
-
-
+use axum::Json;
+use axum::extract::{OriginalUri, Path, Query, State};
+use axum::http::StatusCode;
+use axum::response::IntoResponse;
+use rustavel_core::config::CONFIG;
+use rustavel_core::config::database::DbPoolType;
+use serde::Serialize;
 
 #[derive(Serialize)]
 pub struct SingleProductResponse {
@@ -49,14 +45,11 @@ pub async fn index(
     OriginalUri(uri): OriginalUri,
     Query(query): Query<PaginationQuery>,
 ) -> impl IntoResponse {
-
     let page = query.page.unwrap_or(1).max(1);
     let max = query.max.unwrap_or(10).clamp(1, 100);
 
     // Total count
-    let count: i64 = sqlx::query_scalar(
-        "SELECT COUNT(*) FROM products"
-    )
+    let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM products")
         .fetch_one(&pool)
         .await
         .unwrap_or(0);
@@ -82,27 +75,15 @@ pub async fn index(
         .unwrap_or_default();
 
     // Convert Product -> ProductResponse
-    let data: Vec<ProductResponse> = products
-        .into_iter()
-        .map(ProductResponse::from)
-        .collect();
+    let data: Vec<ProductResponse> = products.into_iter().map(ProductResponse::from).collect();
 
     // Build pagination response
-    let pagination = PaginateBuilder::new(
-        max,
-        count,
-        page,
-        uri.to_string(),
-    ).build(data);
+    let pagination = PaginateBuilder::new(max, count, page, uri.to_string()).build(data);
 
     Json(pagination)
 }
 
-pub async fn show(
-    State(pool): State<DbPoolType>,
-    Path(slug): Path<String>,
-) -> impl IntoResponse {
-
+pub async fn show(State(pool): State<DbPoolType>, Path(slug): Path<String>) -> impl IntoResponse {
     let sql_product = "SELECT * FROM products WHERE slug = ?";
 
     let product = match sqlx::query_as::<_, Product>(sql_product)
@@ -143,15 +124,12 @@ pub async fn show(
         sqlx::query_as::<_, UserResponse>(sql_user)
             .bind(product.user_id)
             .fetch_one(&pool),
-
         sqlx::query_as::<_, Comment>(sql_comments)
             .bind(product.id)
             .fetch_all(&pool),
-
         sqlx::query_as::<_, Image>(sql_images)
             .bind(product.id)
             .fetch_all(&pool),
-
         sqlx::query_as::<_, Category>(sql_categories)
             .bind(product.id)
             .fetch_all(&pool),
@@ -171,11 +149,14 @@ pub async fn show(
         thumb: asset_url(&product.thumb),
         created_at: product.created_at,
         updated_at: product.updated_at,
-        url: format!("{}/api/v1/products",CONFIG.app.url),
+        url: format!("{}/api/v1/products", CONFIG.app.url),
 
         user,
-        categories: categories.into_iter()
-            .map(|cat| CategoryResponse::from((cat, format!("{}/api/v1/categories", CONFIG.app.url))))
+        categories: categories
+            .into_iter()
+            .map(|cat| {
+                CategoryResponse::from((cat, format!("{}/api/v1/categories", CONFIG.app.url)))
+            })
             .collect(),
         images: images.into_iter().map(ImageResponse::from).collect(),
     };
@@ -183,27 +164,28 @@ pub async fn show(
     Json(ProductShowResponse {
         product: response,
         comments,
-    }).into_response()
+    })
+    .into_response()
 }
 
 // pub async fn create(State(_state): State<AppState>) -> impl IntoResponse {
 //     (StatusCode::OK, "to create Product called")
 // }
-// 
+//
 // pub async fn store(State(_state): State<AppState>, params: RawPathParams) -> impl IntoResponse {
 //     (
 //         StatusCode::OK,
 //         println!("to store Product called request: {:?}", params),
 //     )
 // }
-// 
+//
 // pub async fn edit(State(_state): State<AppState>, query: RawQuery) -> impl IntoResponse {
 //     (
 //         StatusCode::OK,
 //         println!("to edit Product called id: {:?}", query),
 //     )
 // }
-// 
+//
 // pub async fn update(
 //     State(_state): State<AppState>,
 //     query: RawQuery,

@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use image::{DynamicImage, imageops::FilterType};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 pub fn generate_category_images(
     source: impl AsRef<Path>,

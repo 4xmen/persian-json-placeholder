@@ -5,9 +5,9 @@ use crate::seeders::database_seeder::SeederContext;
 #[allow(unused_imports)]
 use anyhow::{Result, anyhow};
 use macros_core::factory::Pawn;
-use rustavel_core::helper::number::random;
-use sqlx::AnyPool;
 use rustavel_core::config::database::DbPoolType;
+use rustavel_core::helper::number::random;
+
 // model: Comment (models live in the app crate and can't be imported here)
 
 pub struct CommentSeeder;
@@ -35,7 +35,9 @@ impl CommentSeeder {
                     .bind("Model::Product")
                     .bind(id)
                     .bind(comment.created_at)
-                    .bind(comment.updated_at).execute(&ctx.pool).await?;
+                    .bind(comment.updated_at)
+                    .execute(&ctx.pool)
+                    .await?;
             }
         }
         for id in post_ids {
@@ -50,7 +52,9 @@ impl CommentSeeder {
                     .bind("Model::Post")
                     .bind(id)
                     .bind(comment.created_at)
-                    .bind(comment.updated_at).execute(&ctx.pool).await?;
+                    .bind(comment.updated_at)
+                    .execute(&ctx.pool)
+                    .await?;
             }
         }
 

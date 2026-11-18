@@ -27,7 +27,7 @@ fn title() -> String {
 fn slug() -> String {
     let part1 = persian_slug();
     let part2 = persian_slug();
-    format!("{}-{}",part1.1, part2.1)
+    format!("{}-{}", part1.1, part2.1)
 }
 fn body() -> String {
     persian_lorem_html(true, random(100, 300) as usize, "<br>")

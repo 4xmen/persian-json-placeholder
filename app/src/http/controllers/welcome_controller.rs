@@ -79,31 +79,30 @@ pub async fn api(State(pool): State<DbPoolType>) -> impl IntoResponse {
         api_version: "v1".to_string(),
 
         entities: vec![
-            EntityCount{
+            EntityCount {
                 entity: "Product".to_string(),
                 count: product_count,
             },
-            EntityCount{
+            EntityCount {
                 entity: "Post".to_string(),
                 count: post_count,
             },
-            EntityCount{
+            EntityCount {
                 entity: "Category".to_string(),
                 count: category_count,
             },
-            EntityCount{
+            EntityCount {
                 entity: "User".to_string(),
                 count: user_count,
             },
-            EntityCount{
+            EntityCount {
                 entity: "Todo".to_string(),
                 count: todo_count,
             },
-            EntityCount{
+            EntityCount {
                 entity: "Comment".to_string(),
                 count: comment_count,
             },
-
         ],
 
         urls: vec![

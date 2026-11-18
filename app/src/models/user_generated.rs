@@ -28,6 +28,16 @@ impl Model for User {
         "id"
     }
     fn columns() -> &'static [&'static str] {
-        &["id", "name", "email", "email_verified_at", "password", "remember_token", "created_at", "updated_at", "deleted_at"]
+        &[
+            "id",
+            "name",
+            "email",
+            "email_verified_at",
+            "password",
+            "remember_token",
+            "created_at",
+            "updated_at",
+            "deleted_at",
+        ]
     }
 }

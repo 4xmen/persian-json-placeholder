@@ -1,5 +1,5 @@
 use crate::helper::database::{is_mysql, is_pgsql, is_sqlite};
-use crate::sql::database_client::{DbError, create_db_pool_any, create_db_pool_mysql};
+use crate::sql::database_client::{DbError, create_db_pool_mysql};
 use std::any::TypeId;
 use std::{env, str::FromStr};
 
