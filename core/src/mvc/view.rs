@@ -1,6 +1,6 @@
 use crate::config::CONFIG;
 use crate::route::route_manager::RouteManager;
-use minijinja::value::Rest;
+use minijinja::value::{Rest, Serde};
 use minijinja::{Environment, Error, ErrorKind, State, Value};
 use std::path::PathBuf;
 use std::sync::Arc;
@@ -70,6 +70,17 @@ pub fn register_global_func(env: &mut Environment<'static>, route: Arc<RouteMana
     });
 
     env.add_function("url", || CONFIG.app.url.clone());
+
+    env.add_function("config", |path: String| -> Result<Value, Error> {
+        let value = CONFIG.get(&path).ok_or_else(|| {
+            Error::new(
+                ErrorKind::InvalidOperation,
+                format!("config key not found: {path}"),
+            )
+        })?;
+
+        Ok(Value::from(Serde(value)))
+    });
 }
 
 /// Registers `csrf_field()` and `csrf_meta()` as template globals.

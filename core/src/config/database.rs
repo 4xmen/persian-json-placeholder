@@ -1,5 +1,6 @@
 use crate::helper::database::{is_mysql, is_pgsql, is_sqlite};
 use crate::sql::database_client::{DbError, create_db_pool_any};
+use serde::Serialize;
 use std::any::TypeId;
 use std::{env, str::FromStr};
 
@@ -10,7 +11,7 @@ pub async fn create_db_pool() -> Result<DbPoolType, DbError> {
     create_db_pool_any().await
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum DatabaseEngine {
     Mysql,
     Sqlite,
@@ -18,7 +19,7 @@ pub enum DatabaseEngine {
 }
 
 #[allow(dead_code)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct DatabaseConfig {
     pub connection: DatabaseEngine,
     pub host: String,

@@ -33,4 +33,5 @@ percent-encoding.workspace = true
 thiserror.workspace = true
 futures-util.workspace = true
 anyhow .workspace = true
+serde_json.workspace = true
 tracing = "0.1.44"

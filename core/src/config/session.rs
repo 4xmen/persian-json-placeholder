@@ -1,15 +1,15 @@
+use super::env::{env_bool, env_parse};
+use serde::Serialize;
 use std::str::FromStr;
 
-use super::env::{env_bool, env_parse};
-
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum SessionDriver {
     /// Process-local store. Fine for development; lost on restart and
     /// not shared between instances. A `Database` driver comes next.
     Memory,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum SameSite {
     Lax,
     Strict,
@@ -53,7 +53,7 @@ impl FromStr for SameSite {
 }
 
 /// Session configuration (all values overridable from `.env`).
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct SessionConfig {
     /// SESSION_DRIVER
     pub driver: SessionDriver,

@@ -1,6 +1,7 @@
+use serde::Serialize;
 use std::{env, str::FromStr};
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum MailDriver {
     Smtp,
     SendMail,
@@ -8,13 +9,13 @@ pub enum MailDriver {
     Array,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 pub enum MailEncryptType {
     Tls,
     Ssl,
     None,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct MailConfig {
     pub mailer: MailDriver,
     pub host: String,

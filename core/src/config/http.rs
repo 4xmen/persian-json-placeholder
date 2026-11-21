@@ -1,11 +1,12 @@
 use crate::config::env::{env_bool, env_parse};
+use serde::Serialize;
 use std::env;
 
 /// HTTP layer configuration (middleware stack defaults).
 ///
 /// Every value has a safe default and can be overridden from `.env`,
 /// so the end user never has to touch `main.rs` to tune the stack.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct HttpConfig {
     /// Max request body size in bytes (HTTP_MAX_BODY_SIZE).
     /// Protects against memory-exhaustion DoS via huge bodies/uploads.
@@ -39,7 +40,7 @@ pub struct HttpConfig {
 /// from another origin may READ the response. A cross-site `<form method="POST">`
 /// is still sent by the browser (with cookies) without any CORS check.
 /// That is why CSRF is handled separately by `csrf_guard`.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct CorsConfig {
     /// Comma separated list (CORS_ALLOWED_ORIGINS), e.g.
     /// `https://app.example.com,https://admin.example.com`
