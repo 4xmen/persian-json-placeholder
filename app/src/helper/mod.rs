@@ -1,3 +1,5 @@
+mod paginator;
+
 use crate::routes;
 use rustavel_core::route::route_manager::RouteManager;
 use std::sync::{Arc, LazyLock};

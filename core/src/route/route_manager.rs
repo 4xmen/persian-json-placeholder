@@ -198,11 +198,11 @@ mod tests {
         assert_eq!(m.url0("about"), format!("{}{}", CONFIG.app.url, "/about"));
         assert_eq!(
             m.url0("nope"),
-            format!("{}{}", CONFIG.app.url, "#invalid-route-name")
+            "#invalid-route-name"
         );
         assert_eq!(
             m.url("todos.show", &[&1]),
-            format!("{}{}", CONFIG.app.url, "#invalid-parameters")
+             "#invalid-parameters"
         );
     }
 
