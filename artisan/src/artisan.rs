@@ -14,10 +14,10 @@ use crate::make::model::{NewModelArgs, model};
 
 use crate::db::seed::SeedArgs;
 use crate::make::factory::{NewFactoryArgs, factory};
+use crate::make::middleware::{NewMiddlewareArgs, middleware};
 use crate::make::seeder::{NewSeederArgs, seeder};
 use dialoguer::{Confirm, theme::ColorfulTheme};
 use rustavel_core::helper::terminal_ui::{TitleKind, title};
-use crate::make::middleware::{middleware, NewMiddlewareArgs};
 
 fn confirm(message: &str) -> bool {
     Confirm::with_theme(&ColorfulTheme::default())

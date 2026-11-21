@@ -1,3 +1,4 @@
+use crate::AppState;
 use axum::{
     body::Body,
     extract::State,
@@ -6,7 +7,6 @@ use axum::{
     response::{Html, IntoResponse, Response},
 };
 use minijinja::context;
-use crate::AppState;
 
 pub async fn error_pages_middleware(
     State(state): State<AppState>,
@@ -42,7 +42,7 @@ pub async fn error_pages_middleware(
                 status => status.as_u16(),
                 // You can later pass more data if needed
             })
-                .unwrap_or_else(|_| fallback_html(status, title))
+            .unwrap_or_else(|_| fallback_html(status, title))
         }
         Err(_) => fallback_html(status, title),
     };
@@ -60,6 +60,8 @@ fn fallback_html(status: StatusCode, title: &str) -> String {
             <p>Status: {}</p>
         </body>
         </html>"#,
-        title, title, status.as_u16()
+        title,
+        title,
+        status.as_u16()
     )
 }

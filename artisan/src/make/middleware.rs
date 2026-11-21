@@ -1,12 +1,12 @@
-use std::time::Instant;
+use crate::general::lib::{ensure_new_file, register_mod_file};
+use crate::make::make_error::MakeError;
 use clap::Args;
 use illuminate_str::Str;
 use minijinja::Environment;
 use minijinja::value::Serde;
 use rustavel_core::helper::file_content::FileContent;
-use rustavel_core::helper::terminal_ui::{operation, Status};
-use crate::general::lib::{ensure_new_file, register_mod_file};
-use crate::make::make_error::MakeError;
+use rustavel_core::helper::terminal_ui::{Status, operation};
+use std::time::Instant;
 
 #[derive(Args, Debug)]
 #[command(about = "Create a new HTTP middleware file")]
@@ -14,7 +14,6 @@ pub struct NewMiddlewareArgs {
     /// The name of the middleware
     pub name: String,
 }
-
 
 #[allow(unused)]
 #[derive(serde::Serialize)]
@@ -28,7 +27,7 @@ const MIDDLEWARE_TEMPLATE: &str = include_str!("templates/middleware.rs.j2");
 #[allow(dead_code)]
 pub async fn middleware(args: &NewMiddlewareArgs) -> Result<(), MakeError> {
     let start = Instant::now();
-    let mut mw_name = Str::snake(&Str::singular(&args.name),"_");
+    let mut mw_name = Str::snake(&Str::singular(&args.name), "_");
 
     if !mw_name.ends_with("_middleware") {
         mw_name.push_str("_middleware");

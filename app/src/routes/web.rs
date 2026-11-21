@@ -6,7 +6,7 @@ use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use rustavel_core::route::routing::{BuiltRoutes, Route};
 
-pub fn web_routes() -> BuiltRoutes<AppState> {
+pub fn web_routes(_app_state: AppState) -> BuiltRoutes<AppState> {
     let mut route = Route::new();
 
     route

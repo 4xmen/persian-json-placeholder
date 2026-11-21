@@ -5,7 +5,7 @@ use axum::response::IntoResponse;
 use rustavel_core::route::routing::{BuiltRoutes, Route};
 use rustavel_core::state::AppState; // import AppState
 
-pub fn api_routes() -> BuiltRoutes<AppState> {
+pub fn api_routes(_app_state: AppState) -> BuiltRoutes<AppState> {
     let mut route = Route::new();
 
     route.group(|r| {

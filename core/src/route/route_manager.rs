@@ -1,4 +1,3 @@
-// src/routes.rs
 use std::{
     collections::HashMap,
     fmt::{self, Display, Write},
@@ -161,17 +160,17 @@ impl RouteManager {
 #[macro_export]
 macro_rules! route {
     ($name:expr $(,)?) => {
-        ROUTE_MANAGER.try_url0($name)
+        ROUTE_MANAGER.get().expect("RouteManager is not initialized").try_url0($name)
     };
     ($name:expr, $($param:expr),+ $(,)?) => {
-        ROUTE_MANAGER.try_url($name, &[$(&($param) as &dyn ::std::fmt::Display),+])
+        ROUTE_MANAGER.get().expect("RouteManager is not initialized").try_url($name, &[$(&($param) as &dyn ::std::fmt::Display),+])
     };
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::LazyLock;
+    use std::sync::{Arc, OnceLock};
 
     /// Placeholder for your startup-generated map.
     fn generated_routes() -> HashMap<String, String> {
@@ -185,12 +184,17 @@ mod tests {
     }
 
     /// Global route manager, built on first access.
-    pub static ROUTE_MANAGER: LazyLock<RouteManager> =
-        LazyLock::new(|| RouteManager::new(generated_routes()));
+    pub static ROUTE_MANAGER: OnceLock<Arc<RouteManager>> = OnceLock::new();
 
     #[test]
     fn route_manager_fallback_api() {
-        let m = &*ROUTE_MANAGER;
+        let route_manager = Arc::new(RouteManager::new(generated_routes()));
+        if ROUTE_MANAGER.get().is_none() {
+            let _ = ROUTE_MANAGER.set(route_manager);
+        }
+        let m = ROUTE_MANAGER
+            .get()
+            .expect("RouteManager is not initialized");
         assert_eq!(
             m.url("todos.show", &[&"a b", &"1/2"]),
             format!("{}{}", CONFIG.app.url, "/todos/show/a%20b/1%2F2")
@@ -202,6 +206,11 @@ mod tests {
 
     #[test]
     fn route_manager_safe_api_and_macro() {
+        let route_manager = Arc::new(RouteManager::new(generated_routes()));
+        if ROUTE_MANAGER.get().is_none() {
+            let _ = ROUTE_MANAGER.set(route_manager);
+        }
+
         let email = String::from("a@b.com");
         let id = 42;
 

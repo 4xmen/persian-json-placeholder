@@ -7,7 +7,7 @@
 
 use axum::Router;
 use axum::body::Body;
-use axum::extract::Request;
+use axum::extract::{Request, State};
 use axum::handler::Handler;
 use axum::middleware::Next;
 use axum::response::Response;
@@ -365,6 +365,98 @@ impl<S: Clone + Send + Sync + 'static> Route<S> {
         // } else if let Some(last) = self.items.last_mut() {
         //     last.middlewares.push(mw);
         // }
+
+        if let Some(last) = self.last_route_in_scope() {
+            last.middlewares.push(mw);
+        } else if let Some(ctx) = self.ctx_stack.last_mut() {
+            ctx.middlewares.push(mw);
+        }
+
+        self
+    }
+
+    /// Attaches one stateful middleware to the last added route or group.
+    ///
+    /// Adds a middleware function to the most recently added route or group.
+    /// The middleware receives the application state, the incoming request,
+    /// and a `Next` handler, and must return a `Response`.
+    ///
+    /// Use this method when a middleware needs access to shared application state,
+    /// such as for authentication, authorization, database access, session
+    /// management, or other state-dependent request processing.
+    ///
+    /// The middleware is applied only to the target route or group and its
+    /// sub-routes. It does not affect unrelated routes.
+    ///
+    /// # Type parameters
+    ///
+    /// * `F` - Middleware function type:
+    ///   `Fn(State<S>, Request<Body>, Next) -> Fut + Clone + Send + Sync + 'static`.
+    /// * `Fut` - The future returned by the middleware:
+    ///   `Future<Output = Response> + Send + 'static`.
+    ///
+    /// # Arguments
+    ///
+    /// * `state` - The application state passed to the middleware. The state
+    ///   must be cloneable so it can be shared with the middleware layer.
+    /// * `mw` - The middleware function to attach. The function will be cloned
+    ///   when the middleware layer is created, so it must implement `Clone`.
+    ///
+    /// # Behavior
+    ///
+    /// * If there is a previously added route in the current scope, the middleware
+    ///   is attached to that route.
+    /// * If no route has been added in the current scope, but a group is active,
+    ///   the middleware is attached to that group and applies to its sub-routes.
+    /// * If neither a route nor a group is available, this method is a no-op.
+    /// * The middleware is created using Axum's `from_fn_with_state`, allowing it
+    ///   to extract the application state through `State<S>`.
+    /// * Routes without middleware keep an empty `Vec`, so attaching middleware
+    ///   imposes minimal overhead.
+    ///
+    /// # Returns
+    ///
+    /// A mutable reference to `self` for method chaining.
+    ///
+    /// # Examples
+    ///
+    /// ```rust,ignore
+    /// async fn auth_middleware(
+    ///     State(state): State<AppState>,
+    ///     req: Request<Body>,
+    ///     next: Next,
+    /// ) -> Response {
+    ///     // Access application state for authentication.
+    ///     next.run(req).await
+    /// }
+    ///
+    /// let mut route = Route::new();
+    ///
+    /// route
+    ///     .get("/dashboard", dashboard_handler)
+    ///     .middleware_with_state(state.clone(), auth_middleware);
+    ///
+    /// // Middleware attached to a group applies to its sub-routes.
+    /// route.group(|group| {
+    ///     group
+    ///         .prefix("/admin")
+    ///         .middleware_with_state(state.clone(), auth_middleware);
+    ///
+    ///     group.get("/dashboard", admin_dashboard);
+    /// });
+    /// ```
+    pub fn middleware_with_state<F, Fut>(&mut self, state: S, mw: F) -> &mut Self
+    where
+        S: Clone + Send + Sync + 'static,
+        F: Fn(State<S>, Request<Body>, Next) -> Fut + Clone + Send + Sync + 'static,
+        Fut: Future<Output = Response> + Send + 'static,
+    {
+        let mw = Arc::new(move |router: MethodRouter<S>| {
+            router.layer(axum::middleware::from_fn_with_state(
+                state.clone(),
+                mw.clone(),
+            ))
+        });
 
         if let Some(last) = self.last_route_in_scope() {
             last.middlewares.push(mw);
