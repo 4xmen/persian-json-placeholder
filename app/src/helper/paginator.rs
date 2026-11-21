@@ -25,6 +25,7 @@ pub struct PaginateBuilder {
     current_url: String,
 }
 
+#[allow(dead_code)]
 impl PaginateBuilder {
     /// Creates a new builder.
     /// - `max` is clamped to at least 1
@@ -229,7 +230,7 @@ mod tests {
         assert!(!p.next_page_url.as_ref().unwrap().contains("page=2")); // only the new one
 
         assert_eq!(p.path, "https://api.example.com/users");
-        assert_eq!(p.prev_page_url.as_ref().unwrap().contains("page=1"), true);
+        assert!(p.prev_page_url.as_ref().unwrap().contains("page=1"));
     }
 
     #[test]
