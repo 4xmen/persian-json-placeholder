@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome {{ title }}</title>
-    <link rel="stylesheet" href="/assets/css/default.css" >
+    <link rel="stylesheet" href="{{ url() }}/assets/css/default.css" >
 </head>
 <body>
     <div class="container">
@@ -25,9 +25,10 @@
         </div>
 
         <div class="links">
-            <a href="#">Documentation</a>
+            <a href="https://github.com/4xmen/rustavel/tree/master/docs">Documentation</a>
             <a href="https://github.com/4xmen/rustavel">Rustavel</a>
             <a href="https://github.com/4xmen/rustavel">GitHub</a>
+
         </div>
     </div>
     {% include "partials/dev/performance.j2" %}

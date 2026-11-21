@@ -1,5 +1,7 @@
+use crate::config::CONFIG;
+use crate::route::route_manager::RouteManager;
+use minijinja::value::Rest;
 use minijinja::{Environment, Error, ErrorKind, State, Value};
-use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::Arc;
 use thiserror::Error;
@@ -46,13 +48,28 @@ pub fn resolve_views_dir() -> Result<PathBuf, ViewsDirError> {
     Err(ViewsDirError::NotFound(candidates))
 }
 
-pub fn register_global_func(env: &mut Environment<'static>, routes: Arc<HashMap<String, String>>) {
-    env.add_function("route", move |name: String| -> String {
-        routes
-            .get(&name)
-            .cloned()
-            .unwrap_or_else(|| "#route-name-not-found".to_string())
+/// Registers the global `route` function in a MiniJinja environment.
+///
+/// The function accepts a route name followed by any number of parameters,
+/// then generates the corresponding URL using the provided route manager.
+/// Route-generation errors are returned to the template as MiniJinja errors.
+///
+/// The route manager is shared with the registered function through an
+/// [`Arc`], so it does not need to be copied.
+pub fn register_global_func(env: &mut Environment<'static>, route: Arc<RouteManager>) {
+    env.add_function("route", move |name: String, params: Rest<Value>| {
+        let values: Vec<String> = params.iter().map(ToString::to_string).collect();
+        let display_params: Vec<&dyn std::fmt::Display> = values
+            .iter()
+            .map(|value| value as &dyn std::fmt::Display)
+            .collect();
+
+        route
+            .try_url(&name, &display_params)
+            .map_err(|err| Error::new(ErrorKind::InvalidOperation, err.to_string()))
     });
+
+    env.add_function("url", || CONFIG.app.url.clone());
 }
 
 /// Registers `csrf_field()` and `csrf_meta()` as template globals.

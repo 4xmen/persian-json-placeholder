@@ -64,10 +64,10 @@ use rustavel_core::http::{csrf, session, static_files};
 use rustavel_core::state::AppState;
 // import AppState
 
-async fn hello(State(state): State<AppState>) -> impl IntoResponse {
-    let welcome_url = state.route("welcome");
-    println!("Welcome route: {}", welcome_url);
-    let group_url = state.route("api.v1.users.create");
-    println!("Group route: {}", group_url);
+async fn hello(State(_state): State<AppState>) -> impl IntoResponse {
+    // let welcome_url = state.route("welcome");
+    // println!("Welcome route: {}", welcome_url);
+    // let group_url = state.route("api.v1.users.create");
+    // println!("Group route: {}", group_url);
     (StatusCode::OK, "hello world")
 }

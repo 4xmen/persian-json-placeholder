@@ -6,27 +6,15 @@ use axum::response::{Html, IntoResponse};
 use minijinja::value::Serde;
 use minijinja::{Environment, Value, context};
 use serde::Serialize;
-use std::collections::HashMap;
 use std::sync::Arc;
 
 #[derive(Clone, Debug, FromRef)]
 pub struct AppState {
-    pub routes: Arc<HashMap<String, String>>,
     pub templates: Arc<Environment<'static>>,
     pub db_pool: DbPoolType,
 }
 
 impl AppState {
-    /// Get route url by route name return str
-    /// if the route exsits return
-    /// otherwise return #route-name-not-found
-    pub fn route(&self, route: &str) -> &str {
-        match self.routes.get(route) {
-            Some(route) => route,
-            None => "#route-name-not-found",
-        }
-    }
-
     /// Renders a MiniJinja template with an empty context and returns an HTML response.
     ///
     /// Returns `200 OK` when rendering succeeds, or `500 Internal Server Error`
