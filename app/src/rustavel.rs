@@ -6,6 +6,7 @@ mod models;
 mod routes;
 
 use crate::helper::ROUTE_MANAGER;
+use crate::http::middleware::error_page_middleware::error_pages_middleware;
 use minijinja::{Environment, path_loader};
 use rustavel_core::config::CONFIG;
 use rustavel_core::config::database::create_db_pool;
@@ -42,7 +43,12 @@ async fn main() {
 
     // take type annotation
 
-    let app = http_middleware::apply(built.router, &CONFIG.http).with_state(state);
+    let app = http_middleware::apply(built.router, &CONFIG.http)
+        .layer(axum::middleware::from_fn_with_state(
+            state.clone(),
+            error_pages_middleware,
+        ))
+        .with_state(state);
 
     //
     // let app: Router<AppState> = Router::new()

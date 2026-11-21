@@ -1,0 +1,278 @@
+
+<!DOCTYPE html>
+<html lang="en" data-theme="system">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Error{% endblock %}</title>
+
+    <style>
+        :root {
+            color-scheme: light dark;
+
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --accent: #6366f1;
+            --accent-hover: #4f46e5;
+            --code-bg: #eef2ff;
+            --code-color: #4f46e5;
+            --shadow: 0 20px 60px rgba(15, 23, 42, .06);
+        }
+
+        [data-theme="dark"] {
+            color-scheme: dark;
+
+            --bg: #0f172a;
+            --surface: #18181b;
+            --text: #fafafa;
+            --muted: #a1a1aa;
+            --border: #27272a;
+            --accent: #818cf8;
+            --accent-hover: #a5b4fc;
+            --code-bg: #27245a;
+            --code-color: #c7d2fe;
+            --shadow: 0 20px 60px rgba(0, 0, 0, .2);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            [data-theme="system"] {
+                color-scheme: dark;
+
+                --bg: #09090b;
+                --surface: #18181b;
+                --text: #fafafa;
+                --muted: #a1a1aa;
+                --border: #27272a;
+                --accent: #818cf8;
+                --accent-hover: #a5b4fc;
+                --code-bg: #27245a;
+                --code-color: #c7d2fe;
+                --shadow: 0 20px 60px rgba(0, 0, 0, .2);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: var(--bg);
+            color: var(--text);
+            font-family:
+                Inter, ui-sans-serif, system-ui,
+                -apple-system, BlinkMacSystemFont, sans-serif;
+            transition: background .25s, color .25s;
+        }
+
+        .error-container {
+            width: 100%;
+            max-width: 520px;
+            text-align: center;
+        }
+
+        .error-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 56px 36px;
+            box-shadow: var(--shadow);
+        }
+
+        .error-code {
+            display: inline-block;
+            font-size: clamp(76px, 15vw, 112px);
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -7px;
+            color: var(--code-color);
+            background: var(--code-bg);
+            padding: 12px 24px 20px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: -.7px;
+            margin-bottom: 12px;
+        }
+
+        .description {
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.8;
+            max-width: 370px;
+            margin: 0 auto 32px;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 0 22px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border-color: transparent;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            color: var(--text);
+            background: transparent;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg);
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--surface);
+            color: var(--text);
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .footer {
+            margin-top: 24px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        @media (max-width: 480px) {
+            .error-card {
+                padding: 42px 22px;
+            }
+
+            h1 {
+                font-size: 22px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <button
+        class="theme-toggle"
+        id="themeToggle"
+        type="button"
+        aria-label="Toggle theme"
+        title="Toggle theme"
+    >
+        ◐
+    </button>
+
+    <main class="error-container">
+        <section class="error-card">
+
+            <div class="error-code">
+                {% block code %}500{% endblock %}
+            </div>
+
+            <h1>
+                {% block heading %}Something went wrong{% endblock %}
+            </h1>
+
+            <p class="description">
+                {% block description %}
+                    An unexpected error occurred.
+                    Please try again later.
+                {% endblock %}
+            </p>
+
+            <div class="actions">
+                <a href="{{ url() }}" class="btn btn-primary">
+                    Back to home
+                </a>
+
+                <button
+                    class="btn btn-secondary"
+                    onclick="history.back()"
+                    type="button"
+                >
+                    Go back
+                </button>
+            </div>
+
+        </section>
+
+        <footer class="footer">
+            &copy; {% block year %}2026{% endblock %}
+            &mdash; All rights reserved.
+        </footer>
+    </main>
+
+    <script>
+        const html = document.documentElement;
+        const toggle = document.getElementById("themeToggle");
+
+        const savedTheme = localStorage.getItem("theme");
+
+        if (savedTheme) {
+            html.dataset.theme = savedTheme;
+        }
+
+        toggle.addEventListener("click", () => {
+            const current = html.dataset.theme;
+
+            const next = current === "dark" ? "light" : "dark";
+
+            html.dataset.theme = next;
+            localStorage.setItem("theme", next);
+        });
+    </script>
+
+</body>
+</html>
