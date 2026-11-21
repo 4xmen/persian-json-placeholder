@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-FILE="core/src/config/database.rs"
+FILE="${DATABASE_CONFIG_FILE:-core/src/config/database.rs}"
 
 DRIVER="$(printf '%s' "${DB_CONNECTION:-}" | tr '[:upper:]' '[:lower:]')"
 
@@ -44,75 +44,99 @@ close $fh;
 
 my $original = $source;
 
-# 1. Locate and replace DbPoolType.
-my $pool_pattern =
-    qr/(pub\s+type\s+DbPoolType\s*=\s*sqlx::)([A-Za-z_][A-Za-z0-9_]*)(\s*;)/;
+# -----------------------------------------
+# 1. Replace DbPoolType
+# -----------------------------------------
 
-my $pool_count = () = $source =~ /$pool_pattern/g;
+my $pool_pattern = qr{
+    (pub\s+type\s+DbPoolType\s*=\s*sqlx::)
+    ([A-Za-z_][A-Za-z0-9_]*)
+    (\s*;)
+}x;
+
+my $pool_count = 0;
+
+$source =~ s{
+    $pool_pattern
+}{
+    $pool_count++;
+    $1 . $pool . $3;
+}gex;
 
 die "Expected exactly one DbPoolType declaration; found $pool_count\n"
     unless $pool_count == 1;
 
-if ($source =~ /$pool_pattern/) {
-    my ($prefix, $old_pool, $suffix) = ($1, $2, $3);
+# -----------------------------------------
+# 2. Find create_db_pool()
+# -----------------------------------------
 
-    substr(
-        $source,
-        $-[0],
-        $+[0] - $-[0],
-        $prefix . $pool . $suffix
-    );
-}
-
-# 2. Locate create_db_pool() and its creator call.
-my $function_pattern = qr/
+my $function_pattern = qr{
     (pub\s+async\s+fn\s+create_db_pool\s*
-    \(\s*\)\s*->\s*Result\s*<[^>]+>\s*\{)
+     \(\s*\)\s*->\s*Result\s*<[^>]+>\s*\{)
     (.*?)
     (\n\})
-/sx;
+}sx;
 
-my $function_count = () = $source =~ /$function_pattern/g;
+die "create_db_pool() function not found\n"
+    unless $source =~ /$function_pattern/;
 
-die "Expected exactly one create_db_pool() function; found $function_count\n"
-    unless $function_count == 1;
+my ($function_start, $function_end) = ($-[0], $+[0]);
 
-if ($source =~ /$function_pattern/) {
-    my ($header, $body, $footer) = ($1, $2, $3);
+my ($header, $body, $footer) = ($1, $2, $3);
 
-    my $call_pattern = qr/
-        \b(create_db_pool_[A-Za-z0-9_]*)
-        (\s*\(\s*\)\s*\.await)
-    /x;
+# Make sure there is no second matching function.
+my $remaining = substr($source, $function_end);
 
-    my $call_count = () = $body =~ /$call_pattern/g;
+die "Multiple create_db_pool() functions found\n"
+    if $remaining =~ /$function_pattern/;
 
-    die "Expected exactly one creator call; found $call_count\n"
-        unless $call_count == 1;
+# -----------------------------------------
+# 3. Replace creator call
+# -----------------------------------------
 
-    $body =~ s/$call_pattern/$creator$2/;
+my $call_pattern = qr{
+    \b(create_db_pool_[A-Za-z0-9_]*)
+    (\s*\(\s*\)\s*\.await)
+}x;
 
-    my $replacement = $header . $body . $footer;
+my $call_count = 0;
 
-    substr(
-        $source,
-        $-[0],
-        $+[0] - $-[0],
-        $replacement
-    );
-}
+$body =~ s{
+    $call_pattern
+}{
+    $call_count++;
+    $creator . $2;
+}gex;
 
-die "No changes detected\n"
-    if $source eq $original;
+die "Expected exactly one creator call; found $call_count\n"
+    unless $call_count == 1;
 
-# 3. Verify the resulting configuration before writing.
+my $new_function = $header . $body . $footer;
+
+substr(
+    $source,
+    $function_start,
+    $function_end - $function_start,
+    $new_function
+);
+
+# -----------------------------------------
+# 4. Validate everything before writing
+# -----------------------------------------
+
 die "Incorrect pool type after replacement\n"
     unless $source =~ /pub\s+type\s+DbPoolType\s*=\s*sqlx::\Q$pool\E\s*;/;
 
 die "Incorrect creator after replacement\n"
     unless $source =~ /pub\s+async\s+fn\s+create_db_pool\s*\(\s*\)[\s\S]*?\b\Q$creator\E\s*\(\s*\)\s*\.await/;
 
-# 4. Write only after every validation succeeds.
+die "No changes detected\n"
+    if $source eq $original;
+
+# -----------------------------------------
+# 5. Write only after successful validation
+# -----------------------------------------
+
 open my $out, '>', $file
     or die "Cannot write $file: $!";
 
@@ -123,6 +147,7 @@ print "Database pool adapted successfully\n";
 print "Driver: $driver\n";
 print "Pool: sqlx::$pool\n";
 print "Creator: $creator\n";
+
 PERL
 
 echo "Database configuration updated for $DRIVER"
