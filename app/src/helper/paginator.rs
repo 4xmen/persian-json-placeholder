@@ -1,7 +1,7 @@
 use serde::Serialize;
 
 #[derive(Debug, Serialize)]
-
+#[allow(dead_code)]
 pub struct Pagination<T> {
     pub current_page: usize,
     pub data: Vec<T>,
@@ -115,7 +115,6 @@ impl PaginateBuilder {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -145,7 +144,10 @@ mod tests {
         assert_eq!(p.data, data);
         assert_eq!(p.first_page_url, "https://api.example.com/users?page=1");
         assert_eq!(p.last_page_url, "https://api.example.com/users?page=3");
-        assert_eq!(p.next_page_url, Some("https://api.example.com/users?page=2".into()));
+        assert_eq!(
+            p.next_page_url,
+            Some("https://api.example.com/users?page=2".into())
+        );
         assert_eq!(p.prev_page_url, None);
         assert_eq!(p.path, "https://api.example.com/users");
     }
@@ -158,8 +160,14 @@ mod tests {
         assert_eq!(p.current_page, 2);
         assert_eq!(p.from, Some(11));
         assert_eq!(p.to, Some(20));
-        assert_eq!(p.next_page_url, Some("https://api.example.com/users?page=3".into()));
-        assert_eq!(p.prev_page_url, Some("https://api.example.com/users?page=1".into()));
+        assert_eq!(
+            p.next_page_url,
+            Some("https://api.example.com/users?page=3".into())
+        );
+        assert_eq!(
+            p.prev_page_url,
+            Some("https://api.example.com/users?page=1".into())
+        );
     }
 
     #[test]
@@ -171,7 +179,10 @@ mod tests {
         assert_eq!(p.from, Some(21));
         assert_eq!(p.to, Some(25));
         assert_eq!(p.next_page_url, None);
-        assert_eq!(p.prev_page_url, Some("https://api.example.com/users?page=2".into()));
+        assert_eq!(
+            p.prev_page_url,
+            Some("https://api.example.com/users?page=2".into())
+        );
     }
 
     #[test]
