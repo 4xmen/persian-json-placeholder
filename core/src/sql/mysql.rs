@@ -340,12 +340,25 @@ impl SqlGenerator for MySqlGenerator {
             ColumnDataType::DTTimestamp => {
                 column_sql = format!("`{}` TIMESTAMP {} {}", column.name, nullable, def);
             }
+            // Use DATETIME instead of TIMESTAMP for system-managed columns
+            // (created_at, updated_at, deleted_at).
+            //
+            // Reasons:
+            // - DATETIME has a wider supported date range than TIMESTAMP.
+            // - DATETIME does not perform implicit timezone conversions
+            //   during database storage and retrieval.
+            // - DATETIME maps directly to time::PrimitiveDateTime in SQLx,
+            //   ensuring type compatibility during encoding and decoding.
+            // - Using UTC as a consistent application-level convention
+            //   avoids timezone ambiguity across different environments.
+            //
+            // All system-managed datetime values must be stored in UTC.
             ColumnDataType::DTTimestamps => {
-                column_sql = "`created_at` TIMESTAMP NULL DEFAULT NULL, `updated_at` TIMESTAMP NULL DEFAULT NULL".to_string();
-                extra_cols.push("`updated_at` TIMESTAMP NULL DEFAULT NULL".to_string());
+                column_sql = "`created_at` DATETIME NULL DEFAULT NULL, `updated_at` DATETIME NULL DEFAULT NULL".to_string();
+                extra_cols.push("`updated_at` DATETIME NULL DEFAULT NULL".to_string());
             }
             ColumnDataType::DTSoftDelete => {
-                column_sql = "`deleted_at` TIMESTAMP NULL DEFAULT NULL".to_string();
+                column_sql = "`deleted_at` DATETIME NULL DEFAULT NULL".to_string();
             }
             ColumnDataType::DTEnum => {
                 let enums = match &column.option {

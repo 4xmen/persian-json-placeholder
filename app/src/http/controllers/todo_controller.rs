@@ -1,50 +1,29 @@
 // use std::vec;
+use crate::models::Todo;
 use axum::Json;
 use axum::extract::{RawPathParams, RawQuery, State};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
+use rustavel_core::config::database::DbPoolType;
+use rustavel_core::helper::datetime::TimeExt;
 use rustavel_core::state::AppState;
 use time::macros::datetime;
 
-// use time::PrimitiveDateTime;
-// use rustavel_core::sql::query::QueryDsl;
-use crate::models::Todo;
-use rustavel_core::helper::datetime::TimeExt;
-use rustavel_core::helper::datetime::now_primitive;
+pub async fn index(State(pool): State<DbPoolType>) -> Result<impl IntoResponse, StatusCode> {
+    let sql = r#"
+        SELECT * FROM todos
+        WHERE deleted_at IS NULL
+    "#;
 
-pub async fn index(State(_state): State<AppState>) -> impl IntoResponse {
-    // just for test now
-    let tasks = vec![
-        Todo {
-            id: 1,
-            title: "create router".to_string(),
-            done: true,
-            created_at: Some(now_primitive()),
-            updated_at: Some(now_primitive()),
-            deleted_at: None,
-        },
-        Todo {
-            id: 2,
-            title: "create schema".to_string(),
-            done: true,
-            // created_at: now_primitive(),
-            created_at: Some(now_primitive()),
-            // updated_at: now_primitive(),
-            updated_at: Some(now_primitive()),
+    let todos = sqlx::query_as::<_, Todo>(sql)
+        .fetch_all(&pool)
+        .await
+        .map_err(|e| {
+            println!("{:#?}", e);
+            StatusCode::INTERNAL_SERVER_ERROR
+        })?;
 
-            deleted_at: None,
-        },
-        Todo {
-            id: 3,
-            title: "create controller".to_string(),
-            done: false,
-            created_at: Some(now_primitive()),
-            updated_at: Some(now_primitive()),
-            deleted_at: Some(now_primitive()),
-        },
-    ];
-    (StatusCode::OK, Json(tasks))
-    // (StatusCode::OK, "so so")
+    Ok(Json(todos))
 }
 pub async fn create(State(_state): State<AppState>) -> impl IntoResponse {
     // Todo::all();
