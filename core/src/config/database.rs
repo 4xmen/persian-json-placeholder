@@ -1,14 +1,15 @@
 use crate::helper::database::{is_mysql, is_pgsql, is_sqlite};
-use crate::sql::database_client::{DbError, create_db_pool_any};
+#[allow(unused)]
+use crate::sql::database_client::{DbError, create_db_pool_any, create_db_pool_mysql, create_db_pool_pgsql, create_db_pool_sqlite};
 use serde::Serialize;
 use std::any::TypeId;
 use std::{env, str::FromStr};
 
 // define default db pool
-pub type DbPoolType = sqlx::AnyPool;
+pub type DbPoolType = sqlx::SqlitePool;
 // define default pool creator function
 pub async fn create_db_pool() -> Result<DbPoolType, DbError> {
-    create_db_pool_any().await
+    create_db_pool_sqlite().await
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]

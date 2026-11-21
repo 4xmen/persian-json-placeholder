@@ -97,6 +97,14 @@ jobs:
           $db = Join-Path $env:GITHUB_WORKSPACE "rustavel-ci.sqlite"
           New-Item -ItemType File -Path $db -Force | Out-Null
           "DB_DATABASE=$db" >> $env:GITHUB_ENV
+
+      - name: Adapt Database Pool For CI
+        shell: bash
+        run: bash .github/workflows/adapt-database-pool.sh
+
+      - name: Verify Database Pool Changes
+        run: git diff --check && git diff -- core/src/config/database.rs
+
       - name: Run Tests
         run: cargo test --workspace --locked
 
@@ -130,6 +138,14 @@ jobs:
           DB_FILE="$GITHUB_WORKSPACE/rustavel-ci.sqlite"
           touch "$DB_FILE"
           echo "DB_DATABASE=$DB_FILE" >> "$GITHUB_ENV"
+
+      - name: Adapt Database Pool For CI
+        shell: bash
+        run: bash .github/workflows/adapt-database-pool.sh
+
+      - name: Verify Database Pool Changes
+        run: git diff --check && git diff -- core/src/config/database.rs
+
       - name: Run Tests
         run: cargo test --workspace --locked
 
@@ -187,6 +203,13 @@ jobs:
           echo "DB_PASSWORD=" >> "$GITHUB_ENV"
 #          echo "DB_PREFIX=rv_" >> "$GITHUB_ENV" # test withot db prefix
 
+      - name: Adapt Database Pool For CI
+        shell: bash
+        run: bash .github/workflows/adapt-database-pool.sh
+
+      - name: Verify Database Pool Changes
+        run: git diff --check && git diff -- core/src/config/database.rs
+
       - name: Run Tests
         run: cargo test --workspace --locked
 
@@ -226,6 +249,13 @@ jobs:
           DB_FILE="$GITHUB_WORKSPACE/rustavel-ci.sqlite"
           touch "$DB_FILE"
           echo "DB_DATABASE=$DB_FILE" >> "$GITHUB_ENV"
+
+      - name: Adapt Database Pool For CI
+        shell: bash
+        run: bash .github/workflows/adapt-database-pool.sh
+
+      - name: Verify Database Pool Changes
+        run: git diff --check && git diff -- core/src/config/database.rs
 
       - name: Run Tests
         run: cargo test --workspace --locked -- --test-threads=1
@@ -305,6 +335,13 @@ jobs:
           echo "DB_USERNAME=ci" >> "$GITHUB_ENV"
           echo "DB_PASSWORD=ci_password" >> "$GITHUB_ENV"
           echo "DB_PREFIX=rv_" >> "$GITHUB_ENV"
+
+      - name: Adapt Database Pool For CI
+        shell: bash
+        run: bash .github/workflows/adapt-database-pool.sh
+
+      - name: Verify Database Pool Changes
+        run: git diff --check && git diff -- core/src/config/database.rs
 
       - name: Tests
         run: cargo test --workspace --all-features --locked

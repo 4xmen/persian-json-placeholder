@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 #[allow(dead_code)]
 pub struct Todo {
-    pub id: u64,
+    pub id: i64,
     pub title: String,
     pub done: bool,
     pub created_at: Option<time::PrimitiveDateTime>,
@@ -16,7 +16,7 @@ pub struct Todo {
 }
 
 impl Model for Todo {
-    type PrimaryKey = u64;
+    type PrimaryKey = i64;
 
     fn table() -> &'static str {
         "todos"
@@ -25,13 +25,6 @@ impl Model for Todo {
         "id"
     }
     fn columns() -> &'static [&'static str] {
-        &[
-            "id",
-            "title",
-            "done",
-            "created_at",
-            "updated_at",
-            "deleted_at",
-        ]
+        &["id", "title", "done", "created_at", "updated_at", "deleted_at"]
     }
 }
