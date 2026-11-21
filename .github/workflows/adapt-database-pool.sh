@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
 FILE="core/src/config/database.rs"
 
-case "${DB_CONNECTION,,}" in
+DRIVER="$(printf '%s' "${DB_CONNECTION:-}" | tr '[:upper:]' '[:lower:]')"
+
+case "$DRIVER" in
     mysql)
         POOL="MySqlPool"
         CREATOR="create_db_pool_mysql"
@@ -18,7 +19,7 @@ case "${DB_CONNECTION,,}" in
         CREATOR="create_db_pool_sqlite"
         ;;
     *)
-        echo "::error::Unsupported DB_CONNECTION: ${DB_CONNECTION:-unset}"
+        echo "::error::Unsupported DB_CONNECTION: ${DRIVER:-unset}"
         exit 1
         ;;
 esac
@@ -28,91 +29,100 @@ if [[ ! -f "$FILE" ]]; then
     exit 1
 fi
 
-perl - "$FILE" "$POOL" "$CREATOR" <<'PERL'
+perl - "$FILE" "$POOL" "$CREATOR" "$DRIVER" <<'PERL'
 use strict;
 use warnings;
 
-my ($file, $pool, $creator) = @ARGV;
+my ($file, $pool, $creator, $driver) = @ARGV;
 
-open my $fh, '<', $file or die "Cannot read $file: $!";
+open my $fh, '<', $file
+    or die "Cannot read $file: $!";
+
 local $/;
 my $source = <$fh>;
 close $fh;
 
 my $original = $source;
 
-# Replace DbPoolType.
-my $pool_count = $source =~ s{
-    (pub\s+type\s+DbPoolType\s*=\s*sqlx::)
-    [A-Za-z_][A-Za-z0-9_]*
-    (\s*;)
-}{$1$pool$2}gx;
+# 1. Locate and replace DbPoolType.
+my $pool_pattern =
+    qr/(pub\s+type\s+DbPoolType\s*=\s*sqlx::)([A-Za-z_][A-Za-z0-9_]*)(\s*;)/;
 
-die "Expected exactly one DbPoolType declaration\n"
+my $pool_count = () = $source =~ /$pool_pattern/g;
+
+die "Expected exactly one DbPoolType declaration; found $pool_count\n"
     unless $pool_count == 1;
 
-# Locate create_db_pool() and its current creator.
-my $function_count = 0;
+if ($source =~ /$pool_pattern/) {
+    my ($prefix, $old_pool, $suffix) = ($1, $2, $3);
 
-$source =~ s{
+    substr(
+        $source,
+        $-[0],
+        $+[0] - $-[0],
+        $prefix . $pool . $suffix
+    );
+}
+
+# 2. Locate create_db_pool() and its creator call.
+my $function_pattern = qr/
     (pub\s+async\s+fn\s+create_db_pool\s*
-     \(\s*\)\s*->\s*Result\s*<[^>]+>\s*\{)
-    ([\s\S]*?)
+    \(\s*\)\s*->\s*Result\s*<[^>]+>\s*\{)
+    (.*?)
     (\n\})
-}{
-    my ($head, $body, $tail) = ($1, $2, $3);
+/sx;
 
-    my $count = $body =~ s{
-        \b(create_db_pool_[A-Za-z0-9_]*)
-        (\s*\(\s*\)\s*\.await)
-    }{$creator$2}gx;
+my $function_count = () = $source =~ /$function_pattern/g;
 
-    die "Expected exactly one creator call\n" unless $count == 1;
-
-    $function_count++;
-    $head . $body . $tail;
-}gex;
-
-die "Expected exactly one create_db_pool function\n"
+die "Expected exactly one create_db_pool() function; found $function_count\n"
     unless $function_count == 1;
 
-# Replace the imported creator.
-my $import_count = $source =~ s{
-    (use\s+crate::sql::database_client::\{)
-    ([^}]*)
-    (\};)
-}{
-    my ($head, $imports, $tail) = ($1, $2, $3);
+if ($source =~ /$function_pattern/) {
+    my ($header, $body, $footer) = ($1, $2, $3);
 
-    my @items = map { s/^\s+|\s+$//gr }
-                grep { /\S/ }
-                split /,/, $imports;
+    my $call_pattern = qr/
+        \b(create_db_pool_[A-Za-z0-9_]*)
+        (\s*\(\s*\)\s*\.await)
+    /x;
 
-    my $found = 0;
+    my $call_count = () = $body =~ /$call_pattern/g;
 
-    for (@items) {
-        if (/^create_db_pool_[A-Za-z0-9_]*$/) {
-            $_ = $creator;
-            $found++;
-        }
-    }
+    die "Expected exactly one creator call; found $call_count\n"
+        unless $call_count == 1;
 
-    die "Expected exactly one creator import\n" unless $found == 1;
+    $body =~ s/$call_pattern/$creator$2/;
 
-    $head . join(", ", @items) . $tail;
-}gex;
+    my $replacement = $header . $body . $footer;
 
-die "Expected exactly one database client import\n"
-    unless $import_count == 1;
+    substr(
+        $source,
+        $-[0],
+        $+[0] - $-[0],
+        $replacement
+    );
+}
 
-die "No changes detected\n" if $source eq $original;
+die "No changes detected\n"
+    if $source eq $original;
 
-open my $out, '>', $file or die "Cannot write $file: $!";
+# 3. Verify the resulting configuration before writing.
+die "Incorrect pool type after replacement\n"
+    unless $source =~ /pub\s+type\s+DbPoolType\s*=\s*sqlx::\Q$pool\E\s*;/;
+
+die "Incorrect creator after replacement\n"
+    unless $source =~ /pub\s+async\s+fn\s+create_db_pool\s*\(\s*\)[\s\S]*?\b\Q$creator\E\s*\(\s*\)\s*\.await/;
+
+# 4. Write only after every validation succeeds.
+open my $out, '>', $file
+    or die "Cannot write $file: $!";
+
 print {$out} $source;
 close $out;
 
 print "Database pool adapted successfully\n";
-print "Driver: $ENV{DB_CONNECTION}\n";
+print "Driver: $driver\n";
 print "Pool: sqlx::$pool\n";
 print "Creator: $creator\n";
 PERL
+
+echo "Database configuration updated for $DRIVER"

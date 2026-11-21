@@ -25,6 +25,13 @@ impl Model for Todo {
         "id"
     }
     fn columns() -> &'static [&'static str] {
-        &["id", "title", "done", "created_at", "updated_at", "deleted_at"]
+        &[
+            "id",
+            "title",
+            "done",
+            "created_at",
+            "updated_at",
+            "deleted_at",
+        ]
     }
 }
