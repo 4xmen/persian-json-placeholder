@@ -12,7 +12,6 @@ pub mod build_config {
 }
 pub mod factory;
 
-use once_cell::sync::Lazy;
 use regex::Regex;
 use serde::Serialize;
 use std::collections::HashMap;
@@ -23,15 +22,16 @@ use time::{Date, PrimitiveDateTime, format_description::FormatItem};
 // use serde_json::de::IoRead;
 // use serde_json::Deserializer;
 use std::net::IpAddr;
+use std::sync::LazyLock;
 
-pub static EMAIL_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").unwrap());
+pub static EMAIL_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").unwrap());
 
-pub static URL_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"^(https?|ftps?)://[^\s/$.?#].[^\s]*$").unwrap());
+pub static URL_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^(https?|ftps?)://[^\s/$.?#].[^\s]*$").unwrap());
 
-pub static HEX_REGEX: Lazy<Regex> =
-    Lazy::new(|| Regex::new(r"^#?([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$").unwrap());
+pub static HEX_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^#?([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$").unwrap());
 
 pub static DATETIME_FORMAT: &[FormatItem<'static>] =
     format_description!("[year]-[month]-[day] [hour]:[minute]:[second]");

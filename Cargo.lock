@@ -1751,7 +1751,6 @@ name = "macros-core"
 version = "0.1.0"
 dependencies = [
  "dotenvy",
- "once_cell",
  "regex",
  "serde",
  "serde_json",
@@ -2201,7 +2200,6 @@ dependencies = [
  "macros",
  "macros-core",
  "minijinja",
- "once_cell",
  "rustavel-core",
  "serde",
  "serde_json",
@@ -2248,7 +2246,6 @@ dependencies = [
  "lettre",
  "macros-core",
  "minijinja",
- "once_cell",
  "percent-encoding",
  "rand 0.10.3",
  "ring",
@@ -2275,7 +2272,6 @@ dependencies = [
  "illuminate-str",
  "macros",
  "macros-core",
- "once_cell",
  "regex",
  "rustavel-artisan",
  "rustavel-core",

@@ -1,4 +1,4 @@
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 
 pub mod app;
 pub mod database;
@@ -33,4 +33,4 @@ impl Config {
     }
 }
 
-pub static CONFIG: Lazy<Config> = Lazy::new(Config::load);
+pub static CONFIG: LazyLock<Config> = LazyLock::new(Config::load);

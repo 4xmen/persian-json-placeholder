@@ -9,7 +9,6 @@ rust-version.workspace = true
 tokio.workspace = true
 dotenv.workspace = true
 sqlx.workspace = true
-once_cell.workspace = true
 async-trait.workspace = true
 axum.workspace = true
 serde.workspace =  true

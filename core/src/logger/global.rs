@@ -1,11 +1,11 @@
-use once_cell::sync::Lazy;
+use std::sync::LazyLock;
 use std::time::{SystemTime, UNIX_EPOCH};
 use tokio::sync::mpsc::{UnboundedSender, unbounded_channel};
 
 use super::message::{LogLevel, LogMessage};
 use super::worker::LoggerWorker;
 
-static LOGGER_TX: Lazy<UnboundedSender<LogMessage>> = Lazy::new(|| {
+static LOGGER_TX: LazyLock<UnboundedSender<LogMessage>> = LazyLock::new(|| {
     let (tx, rx) = unbounded_channel();
 
     // Spawn logging worker exactly once
