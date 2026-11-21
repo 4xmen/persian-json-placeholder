@@ -33,4 +33,5 @@ subtle.workspace = true
 percent-encoding.workspace = true
 thiserror.workspace = true
 futures-util.workspace = true
+anyhow .workspace = true
 tracing = "0.1.44"

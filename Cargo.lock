@@ -2234,6 +2234,7 @@ name = "rustavel-core"
 version = "0.1.0"
 dependencies = [
  "ansi-str",
+ "anyhow",
  "argon2",
  "async-trait",
  "axum",
