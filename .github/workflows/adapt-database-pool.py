@@ -8,22 +8,27 @@ from pathlib import Path
 
 DRIVERS = {
     "mysql": {
+        "pkey": "u64",
         "pool": "MySqlPool",
         "creator": "create_db_pool_mysql",
     },
     "pgsql": {
+        "pkey": "i64",
         "pool": "PgPool",
         "creator": "create_db_pool_pgsql",
     },
     "postgres": {
+        "pkey": "i64",
         "pool": "PgPool",
         "creator": "create_db_pool_pgsql",
     },
     "postgresql": {
+        "pkey": "i64",
         "pool": "PgPool",
         "creator": "create_db_pool_pgsql",
     },
     "sqlite": {
+        "pkey": "i64",
         "pool": "SqlitePool",
         "creator": "create_db_pool_sqlite",
     },
@@ -42,6 +47,8 @@ def main() -> None:
         fail(f"Unsupported DB_CONNECTION: {driver!r}")
 
     config = DRIVERS[driver]
+
+    pkey = config["pkey"]
     pool = config["pool"]
     creator = config["creator"]
 
@@ -63,7 +70,29 @@ def main() -> None:
     original = source
 
     # --------------------------------------------------
-    # 1. Replace DbPoolType
+    # 1. Replace PKeyType
+    # --------------------------------------------------
+
+    pkey_pattern = re.compile(
+        r"(?m)^([ \t]*pub[ \t]+type[ \t]+PKeyType"
+        r"[ \t]*=[ \t]*)"
+        r"[A-Za-z_][A-Za-z0-9_]*"
+        r"([ \t]*;)"
+    )
+
+    source, pkey_count = pkey_pattern.subn(
+        lambda match: match.group(1) + pkey + match.group(2),
+        source,
+    )
+
+    if pkey_count != 1:
+        fail(
+            "Expected exactly one PKeyType declaration, "
+            f"found {pkey_count}"
+        )
+
+    # --------------------------------------------------
+    # 2. Replace DbPoolType
     # --------------------------------------------------
 
     pool_pattern = re.compile(
@@ -85,7 +114,7 @@ def main() -> None:
         )
 
     # --------------------------------------------------
-    # 2. Locate create_db_pool()
+    # 3. Locate create_db_pool()
     # --------------------------------------------------
 
     function_pattern = re.compile(
@@ -109,7 +138,7 @@ def main() -> None:
     body = function.group(2)
 
     # --------------------------------------------------
-    # 3. Replace the existing creator call
+    # 4. Replace the existing creator call
     # --------------------------------------------------
 
     creator_pattern = re.compile(
@@ -129,20 +158,30 @@ def main() -> None:
         )
 
     replacement = (
-        function.group(1)
-        + body
-        + function.group(3)
+            function.group(1)
+            + body
+            + function.group(3)
     )
 
     source = (
-        source[:function.start()]
-        + replacement
-        + source[function.end():]
+            source[:function.start()]
+            + replacement
+            + source[function.end():]
     )
 
     # --------------------------------------------------
-    # 4. Validate the resulting source
+    # 5. Validate the resulting source
     # --------------------------------------------------
+
+    expected_pkey = re.compile(
+        r"(?m)^[ \t]*pub[ \t]+type[ \t]+PKeyType"
+        r"[ \t]*=[ \t]*"
+        + re.escape(pkey)
+        + r"[ \t]*;"
+    )
+
+    if len(expected_pkey.findall(source)) != 1:
+        fail("PKey type validation failed")
 
     expected_pool = re.compile(
         r"(?m)^[ \t]*pub[ \t]+type[ \t]+DbPoolType"
@@ -167,7 +206,7 @@ def main() -> None:
         return
 
     # --------------------------------------------------
-    # 5. Write only after successful validation
+    # 6. Write only after successful validation
     # --------------------------------------------------
 
     try:
@@ -175,8 +214,9 @@ def main() -> None:
     except OSError as exc:
         fail(f"Cannot write database configuration: {exc}")
 
-    print("Database pool adapted successfully!")
+    print("Database configuration adapted successfully!")
     print(f"Driver : {driver}")
+    print(f"PKey   : {pkey}")
     print(f"Pool   : sqlx::{pool}")
     print(f"Creator: {creator}")
     print(f"File   : {file_path}")
