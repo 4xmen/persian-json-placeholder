@@ -2,16 +2,63 @@
 
 use crate::seeders::database_seeder::SeederContext;
 use anyhow::{Result, anyhow};
+use rustavel_core::helper::database::is_pgsql;
+use rustavel_core::helper::datetime::now_ymd_hms;
+use rustavel_core::helper::number::random;
 
 pub struct TodoSeeder;
 
 impl TodoSeeder {
-    pub async fn run(_ctx: SeederContext) -> Result<bool> {
-        let success = true;
+    pub async fn run(ctx: SeederContext) -> Result<bool> {
 
-        if !success {
-            return Err(anyhow!("Todo seeder failed"));
+        let titles = [
+            "Buy a mouse pad",
+            "Organize the desk",
+            "Back up files",
+            "Check emails",
+            "Read daily",
+            "Complete a programming exercise",
+            "Pay the bills",
+            "Buy groceries",
+            "Go for a walk",
+            "Plan for next week",
+            "Water the plants",
+            "Clean the kitchen",
+            "Call a family member",
+            "Review this week's goals",
+            "Update the project notes",
+            "Stretch for ten minutes",
+            "Sort the laundry",
+            "Prepare lunch for tomorrow",
+            "Read a chapter of a book",
+            "Tidy up the downloads folder",
+        ];
+
+        let sql = if is_pgsql() {
+            r#"INSERT INTO todos (title, done, created_at, updated_at)
+       VALUES ($1, $2, $3, $4)"#
+        } else {
+            r#"INSERT INTO todos (title, done, created_at, updated_at)
+       VALUES (?, ?, ?, ?)"#
+        };
+
+        let now = now_ymd_hms();
+
+        for title in titles {
+            let _n = sqlx::query(sql)
+                .bind(title)
+                .bind(random(0, 1))
+                .bind(&now)
+                .bind(&now)
+                .execute(&ctx.pool)
+                .await?;
         }
+
+        // let success = true;
+        //
+        // if !success {
+        //     return Err(anyhow!("Todo seeder failed"));
+        // }
 
         Ok(true)
     }

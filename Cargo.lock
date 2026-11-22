@@ -1734,7 +1734,7 @@ dependencies = [
 
 [[package]]
 name = "macros"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "fake",
  "macros-core",
@@ -1742,13 +1742,13 @@ dependencies = [
  "quote",
  "serde",
  "serde_json",
- "syn 2.0.119",
+ "syn 3.0.10",
  "time",
 ]
 
 [[package]]
 name = "macros-core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "dotenvy",
  "regex",
@@ -2190,7 +2190,7 @@ dependencies = [
 
 [[package]]
 name = "rustavel-app"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "async-trait",
  "axum",
@@ -2212,7 +2212,7 @@ dependencies = [
 
 [[package]]
 name = "rustavel-artisan"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "clap",
  "data-encoding",
@@ -2229,7 +2229,7 @@ dependencies = [
 
 [[package]]
 name = "rustavel-core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "ansi-str",
  "anyhow",
@@ -2263,7 +2263,7 @@ dependencies = [
 
 [[package]]
 name = "rustavel-db"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "async-trait",

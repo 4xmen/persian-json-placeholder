@@ -1,5 +1,5 @@
 // use std::vec;
-use crate::models::Todo;
+use crate::models::{Todo};
 use axum::Json;
 use axum::extract::{RawPathParams, RawQuery, State};
 use axum::http::StatusCode;
@@ -8,6 +8,7 @@ use rustavel_core::config::database::DbPoolType;
 use rustavel_core::helper::datetime::TimeExt;
 use rustavel_core::state::AppState;
 use time::macros::datetime;
+use crate::models::todo::TodoResource;
 
 pub async fn index(State(pool): State<DbPoolType>) -> Result<impl IntoResponse, StatusCode> {
     let sql = r#"
@@ -23,7 +24,7 @@ pub async fn index(State(pool): State<DbPoolType>) -> Result<impl IntoResponse, 
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
-    Ok(Json(todos))
+    Ok(Json(TodoResource::collection(todos)))
 }
 pub async fn create(State(_state): State<AppState>) -> impl IntoResponse {
     // Todo::all();

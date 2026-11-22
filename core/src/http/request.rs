@@ -5,7 +5,7 @@ use axum::{
     http::{Request, StatusCode},
     response::{IntoResponse, Response},
 };
-use macros_core::CheckMateValidator;
+use macros_core::validator::CheckMateValidator;
 use serde::de::DeserializeOwned;
 
 pub struct ValidatedJson<T>(pub T);
