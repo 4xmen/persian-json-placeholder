@@ -10,7 +10,6 @@ pub struct TodoSeeder;
 
 impl TodoSeeder {
     pub async fn run(ctx: SeederContext) -> Result<bool> {
-
         let titles = [
             "Buy a mouse pad",
             "Organize the desk",
@@ -54,11 +53,11 @@ impl TodoSeeder {
                 .await?;
         }
 
-        // let success = true;
-        //
-        // if !success {
-        //     return Err(anyhow!("Todo seeder failed"));
-        // }
+        let success = true;
+
+        if !success {
+            return Err(anyhow!("Todo seeder failed sample"));
+        }
 
         Ok(true)
     }

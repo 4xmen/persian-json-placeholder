@@ -1,13 +1,14 @@
 //!  this code generating by system
 //!  if you want edit create backup from your modified code
 
+use rustavel_core::config::database::PKeyType;
 use rustavel_core::mvc::model::Model;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 #[allow(dead_code)]
 pub struct Todo {
-    pub id: i64,
+    pub id: PKeyType,
     pub title: String,
     pub done: bool,
     pub created_at: Option<time::PrimitiveDateTime>,
@@ -16,7 +17,7 @@ pub struct Todo {
 }
 
 impl Model for Todo {
-    type PrimaryKey = i64;
+    type PrimaryKey = PKeyType;
 
     fn table() -> &'static str {
         "todos"

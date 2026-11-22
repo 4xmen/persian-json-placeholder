@@ -2,7 +2,6 @@ pub use macros_core::resource::{
     NestedCollection, NestedOption, Resource, ResourceCollection, ResourceRef, ResourceSpec,
 };
 
-
 pub fn add(left: u64, right: u64) -> u64 {
     left + right
 }
@@ -17,4 +16,3 @@ mod tests {
         assert_eq!(result, 4);
     }
 }
-

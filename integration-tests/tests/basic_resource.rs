@@ -1,6 +1,6 @@
 //! Basic integration tests for the `resource!` macro.
 
-use macros::{resource};
+use macros::resource;
 use serde::Serialize;
 use serde_json::json;
 

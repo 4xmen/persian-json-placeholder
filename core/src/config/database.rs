@@ -7,6 +7,8 @@ use serde::Serialize;
 use std::any::TypeId;
 use std::{env, str::FromStr};
 
+// define default pkey type
+pub type PKeyType = u64;
 // define default db pool
 pub type DbPoolType = sqlx::MySqlPool;
 // define default pool creator function

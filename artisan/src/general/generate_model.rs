@@ -3,7 +3,6 @@ use illuminate_str::Str;
 use minijinja::Environment;
 use minijinja::value::Serde;
 use rustavel_core::db::schema::ModelData;
-use rustavel_core::helper::database::is_mysql;
 use rustavel_core::helper::file_content::FileContent;
 const MODEL_GENERATED_TEMPLATE: &str = include_str!("../make/templates/model_generated.rs.j2");
 
@@ -28,7 +27,8 @@ pub async fn save_generated_model(
     let generated_path = base.join(format!("{}_generated.rs", Str::snake(&model_name, "_")));
 
     let ctx = if let Some(model_data) = data {
-        let pkey_type = if is_mysql() { "u64" } else { "i64" }.into();
+        // let pkey_type = if is_mysql() { "u64" } else { "i64" }.into();
+        let pkey_type = "PKeyType".to_string();
         ModelContext {
             name: model_name,
             fields: model_data.model.trim().to_owned(),

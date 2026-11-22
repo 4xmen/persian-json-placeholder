@@ -1,8 +1,8 @@
+use regex::Regex;
+use serde::Serialize;
 use std::collections::HashMap;
 use std::net::IpAddr;
 use std::sync::LazyLock;
-use regex::Regex;
-use serde::Serialize;
 use time::format_description::FormatItem;
 use time::macros::format_description;
 use time::{Date, PrimitiveDateTime};

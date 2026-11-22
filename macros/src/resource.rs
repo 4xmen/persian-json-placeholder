@@ -3,12 +3,9 @@
 use quote::{format_ident, quote};
 use std::collections::HashSet;
 use syn::{
-    braced, ext::IdentExt, parse::Parse, Expr, GenericArgument, Ident,
-    PathArguments, Token, Type, TypePath, Visibility,
+    Expr, GenericArgument, Ident, PathArguments, Token, Type, TypePath, Visibility, braced,
+    ext::IdentExt, parse::Parse,
 };
-
-
-
 
 // ===========================================================================
 // resource! parsing & expansion
@@ -318,7 +315,9 @@ impl ResponseDef {
 
         // Generic parameters get synthetic CamelCase names (`__T0`, `__T1`, ...)
         // instead of the field names, which avoids `non_camel_case_types` warnings.
-        let generics: Vec<Ident> = (0..field_count).map(|i| format_ident!("__T{}", i)).collect();
+        let generics: Vec<Ident> = (0..field_count)
+            .map(|i| format_ident!("__T{}", i))
+            .collect();
 
         // The struct is defined inside a block, so repeated or nested uses do not clash.
         let struct_name = format_ident!("__ResourceResponse");

@@ -15,13 +15,13 @@
 
 use crate::checkmate::*;
 use crate::pawn::pawn_expand;
+use crate::resource::{ResourceDef, ResponseDef};
 use proc_macro::TokenStream;
 use quote::quote;
 use quote::spanned::Spanned;
 use std::collections::HashSet;
 use syn::Error;
 use syn::{DeriveInput, parse_macro_input};
-use crate::resource::{ResourceDef, ResponseDef};
 
 mod checkmate;
 mod pawn;
@@ -156,7 +156,6 @@ pub fn derive_factory(input: TokenStream) -> TokenStream {
         .into()
 }
 
-
 /// Defines a serialization projection (Resource).
 ///
 /// Every value expression reads from `this`, the borrowed source value.
@@ -182,7 +181,6 @@ pub fn resource(input: TokenStream) -> TokenStream {
     let def = parse_macro_input!(input as ResourceDef);
     def.expand().into()
 }
-
 
 /// Builds a response object that serializes directly to JSON without an
 /// intermediate `serde_json::Value`.

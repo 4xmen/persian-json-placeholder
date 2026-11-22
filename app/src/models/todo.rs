@@ -1,7 +1,8 @@
 use super::Todo;
-use macros::resource;
-use rustavel_core::route;
 use crate::helper::http_functions::ROUTE_MANAGER;
+use macros::resource;
+use rustavel_core::config::database::PKeyType;
+use rustavel_core::route;
 
 impl Todo {}
 
@@ -15,8 +16,6 @@ resource! {
     }
 }
 
-fn resource_url(id: i64) -> String {
+fn resource_url(id: PKeyType) -> String {
     route!("todos.show", id).unwrap_or_default()
 }
-
-

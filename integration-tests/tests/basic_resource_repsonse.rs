@@ -6,7 +6,7 @@
 //! - We combine them at the handler layer using a composite source.
 //! - Field transformations and computed fields are supported via expressions.
 
-use macros::{resource_response, resource};
+use macros::{resource, resource_response};
 use serde::Serialize;
 use serde_json::json;
 
@@ -329,8 +329,7 @@ fn nested_optional_resource() {
     );
 
     // Missing relation becomes a JSON null.
-    let without_category =
-        ProductWithCategoryResource::from((product(2, "Phone", "phone"), None));
+    let without_category = ProductWithCategoryResource::from((product(2, "Phone", "phone"), None));
     let value = to_value(without_category);
     assert_eq!(value["category"], serde_json::Value::Null);
 }
