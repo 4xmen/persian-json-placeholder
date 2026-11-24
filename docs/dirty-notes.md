@@ -74,3 +74,29 @@ pub async fn create_db_pool() -> Result<DbPoolType, DbError> {
     create_db_pool_mysql().await                 // and here
 }
 ```
+
+## faster compile
+
+Optional: Speed Up Compilation with sccache
+
+If you're tired of waiting for Rust compilation, you can use sccache to cache compiler outputs and speed up subsequent builds.
+
+Install sccache:
+```bash
+cargo install sccache
+```
+
+Open your Cargo configuration file:
+```bash
+~/.cargo/config.toml
+```
+
+Or Uncomment the following lines in `.cargo/config.toml`
+```toml
+[build]
+rustc-wrapper = "sccache"
+```
+
+That's it! Cargo will automatically use sccache for your builds.
+
+Note: This is completely optional. You can build the project normally without sccache.
