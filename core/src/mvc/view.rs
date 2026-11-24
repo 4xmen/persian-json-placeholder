@@ -1,7 +1,7 @@
+use crate::config::CONFIG;
+use minijinja::value::Serde;
 use minijinja::{Environment, Error, ErrorKind, State, Value};
-use std::collections::HashMap;
 use std::path::PathBuf;
-use std::sync::Arc;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -46,12 +46,18 @@ pub fn resolve_views_dir() -> Result<PathBuf, ViewsDirError> {
     Err(ViewsDirError::NotFound(candidates))
 }
 
-pub fn register_global_func(env: &mut Environment<'static>, routes: Arc<HashMap<String, String>>) {
-    env.add_function("route", move |name: String| -> String {
-        routes
-            .get(&name)
-            .cloned()
-            .unwrap_or_else(|| "#route-name-not-found".to_string())
+pub fn register_global_func(env: &mut Environment<'static>) {
+    env.add_function("url", || CONFIG.app.url.clone());
+
+    env.add_function("config", |path: String| -> Result<Value, Error> {
+        let value = CONFIG.get(&path).ok_or_else(|| {
+            Error::new(
+                ErrorKind::InvalidOperation,
+                format!("config key not found: {path}"),
+            )
+        })?;
+
+        Ok(Value::from(Serde(value)))
     });
 }
 

@@ -13,7 +13,7 @@ resolver = "2"
 
 [workspace.package]
 rust-version = "1.94"
-version = "0.1.0"
+version = "0.2.0"
 
 [workspace.dependencies]
 
@@ -52,7 +52,6 @@ clap = { version = "4.6", features = ["derive"] }
 dotenv = "0.15.0" # env loading (dev)
 
 # ── Utilities / Glue ──────────────────────────────
-once_cell = "1.21.4"     # lazy statics
 async-trait = "0.1.92"   # async in traits
 
 # ── Time / Date ───────────────────────────────────
@@ -84,4 +83,4 @@ anyhow = "1"
 thiserror = "2"
 
 # ── mail & cache ────────────────────────
-lettre = { version = "0.11.23", features = ["builder", "smtp-transport", "sendmail-transport", "pool", "hostname", "tokio1", "tokio1-native-tls", "ring", "webpki-roots"] }
+lettre = { version = "0.11", features = ["builder", "smtp-transport", "sendmail-transport", "pool", "hostname", "tokio1", "tokio1-rustls-tls", "ring", "webpki-roots"], default-features = false }

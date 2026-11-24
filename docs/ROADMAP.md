@@ -15,6 +15,7 @@ Public release of Rustavel — an experimental backend framework for Rust, inspi
 - [x] MiniJinja template rendering `v0.1.0`
 - [x] Application configuration `v0.1.0`
 - [x] Axum-based HTTP integration `v0.1.0`
+- [x] Resource API `v0.2.0`
 
 ## Developer Experience
 
@@ -74,7 +75,6 @@ Development priorities:
 - Cache
 - Queues and Jobs
 - Task Scheduling
-- API Resources
 - Frontend tooling integration
 
 
@@ -82,7 +82,10 @@ Development priorities:
 
 The following projects are being developed using Rustavel to evaluate its capabilities in real-world scenarios:
 
-- [ ] JSONPlaceholder — A RESTful API inspired by JSONPlaceholder.
+- [x] JSONPlaceholder — A RESTful API inspired by JSONPlaceholder.
+- Project detail:
+  - https://github.com/4xmen/persian-json-placeholder
+  - https://jsonholder.ir/
 
 ## Notes & Community Feedback
 

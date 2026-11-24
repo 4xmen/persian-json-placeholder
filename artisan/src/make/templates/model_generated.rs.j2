@@ -3,6 +3,7 @@
 
 use rustavel_core::mvc::model::Model;
 use serde::{Deserialize, Serialize};
+use rustavel_core::config::database::PKeyType;
 
 #[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 #[allow(dead_code)]

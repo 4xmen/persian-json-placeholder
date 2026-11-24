@@ -15,6 +15,7 @@
 
 use crate::checkmate::*;
 use crate::pawn::pawn_expand;
+use crate::resource::{ResourceDef, ResponseDef};
 use proc_macro::TokenStream;
 use quote::quote;
 use quote::spanned::Spanned;
@@ -24,6 +25,7 @@ use syn::{DeriveInput, parse_macro_input};
 
 mod checkmate;
 mod pawn;
+mod resource;
 
 /// Derive macro for the CheckMate validation system.
 ///
@@ -152,4 +154,49 @@ pub fn derive_factory(input: TokenStream) -> TokenStream {
     pawn_expand(input)
         .unwrap_or_else(syn::Error::into_compile_error)
         .into()
+}
+
+/// Defines a serialization projection (Resource).
+///
+/// Every value expression reads from `this`, the borrowed source value.
+///
+/// ```ignore
+/// resource! {
+///     ProductResource from Product {
+///         id,                                                    // same as `id = this.id`
+///         title,
+///         price = this.amount,                                   // rename
+///         created_at = to_jalali(&this.created_at),              // transform
+///         categories: Vec<CategoryResource> = this.categories,   // nested resources
+///     }
+/// }
+/// ```
+///
+/// The `Vec<X>` / `Option<X>` annotation is not a real field type. It only tells
+/// the macro that `X` is another resource. Omit the annotation for plain data
+/// such as `Vec<String>`.
+#[proc_macro]
+pub fn resource(input: TokenStream) -> TokenStream {
+    // Parse the definition, then generate the struct and trait impl.
+    let def = parse_macro_input!(input as ResourceDef);
+    def.expand().into()
+}
+
+/// Builds a response object that serializes directly to JSON without an
+/// intermediate `serde_json::Value`.
+///
+/// # Example
+///
+/// ```ignore
+/// Json(resource_response! {
+///     data: ProductResource::from((product, categories)),
+///     user: UserResource::from(user),
+///     comments: CommentResource::collection(comments),
+/// })
+/// ```
+#[proc_macro]
+pub fn resource_response(input: TokenStream) -> TokenStream {
+    // Parse the `name: expr` list, then generate a local serializable struct.
+    let response = parse_macro_input!(input as ResponseDef);
+    response.expand().into()
 }

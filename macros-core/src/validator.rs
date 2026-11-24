@@ -1,0 +1,299 @@
+use regex::Regex;
+use serde::Serialize;
+use std::collections::HashMap;
+use std::net::IpAddr;
+use std::sync::LazyLock;
+use time::format_description::FormatItem;
+use time::macros::format_description;
+use time::{Date, PrimitiveDateTime};
+
+pub static EMAIL_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$").unwrap());
+
+pub static URL_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^(https?|ftps?)://[^\s/$.?#].[^\s]*$").unwrap());
+
+pub static HEX_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"^#?([a-fA-F0-9]{3}|[a-fA-F0-9]{6})$").unwrap());
+
+pub static DATETIME_FORMAT: &[FormatItem<'static>] =
+    format_description!("[year]-[month]-[day] [hour]:[minute]:[second]");
+
+pub static DATE_FORMAT: &[FormatItem<'static>] = format_description!("[year]-[month]-[day]");
+
+#[derive(Debug, Serialize)]
+pub struct ValidationErrors {
+    pub errors: HashMap<String, Vec<String>>,
+}
+
+impl Default for ValidationErrors {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl ValidationErrors {
+    pub fn new() -> Self {
+        Self {
+            errors: HashMap::new(),
+        }
+    }
+
+    pub fn add(&mut self, field: impl Into<String>, message: impl Into<String>) {
+        self.errors
+            .entry(field.into())
+            .or_default()
+            .push(message.into());
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.errors.is_empty()
+    }
+}
+
+// pub trait CheckMateValidator : Sync + Send {
+//     fn validate(&self) -> Result<(), ValidationErrors>;
+// }
+pub trait CheckMateValidator {
+    fn validate(&self) -> impl std::future::Future<Output = Result<(), ValidationErrors>> + Send;
+}
+
+/// Validate if the given string is a properly formatted email address.
+///
+/// This function uses a regular expression to check that the input string matches
+/// the general format of an email address. The format requires that the email
+/// consists of alphanumeric characters, followed by an '@' symbol, then a domain
+/// name with at least one dot separating the domain and the top-level domain.
+///
+/// # Example
+///
+/// ```
+/// # use macros_core::is_valid_email;
+/// assert_eq!(is_valid_email("example@example.com"), true);
+/// assert_eq!(is_valid_email("invalid-email"), false);
+/// ```
+pub fn is_valid_email(value: &str) -> bool {
+    EMAIL_REGEX.is_match(value)
+}
+
+/// Validate if the given string is a properly formatted URL.
+///
+/// This function checks if the input string matches the general format for URLs.
+/// It supports schemes such as `http`, `https`, `ftp`, and `ftps`. The URL
+/// must start with one of these schemes followed by `://`, and include a valid
+/// domain as well as optional paths.
+///
+/// # Example
+///
+/// ```
+/// # use macros_core::is_valid_url;
+/// assert_eq!(is_valid_url("http://example.com"), true);
+/// assert_eq!(is_valid_url("ftp://files.example.com/resource"), true);
+/// assert_eq!(is_valid_url("invalid-url"), false);
+/// ```
+pub fn is_valid_url(value: &str) -> bool {
+    URL_REGEX.is_match(value)
+}
+
+/// Validate if the given string is a valid hexadecimal color.
+///
+/// Supports formats like:
+/// - #FFF
+/// - #FFFFFF
+/// - FFF
+/// - FFFFFF
+pub fn is_valid_hex_color(value: &str) -> bool {
+    HEX_REGEX.is_match(value)
+}
+
+/// Returns `true` if all characters in the string are ASCII.
+///
+/// This function checks whether every byte in the string is within the
+/// ASCII range (0x00..=0x7F).
+///
+/// # Examples
+///
+/// ```
+/// # use macros_core::is_valid_ascii;
+/// assert!(is_valid_ascii("Hello"));
+/// assert!(!is_valid_ascii("سلام"));
+/// ```
+pub fn is_valid_ascii(s: &str) -> bool {
+    s.is_ascii()
+}
+
+/// Returns `true` if all characters in the string are ASCII alphanumeric.
+///
+/// This function checks whether every character in the string is within the
+/// ASCII alphanumeric range: `A-Z`, `a-z`, or `0-9`.
+///
+/// # Examples
+///
+/// ```
+/// # use macros_core::is_valid_ascii_alphanumeric;
+/// assert!(is_valid_ascii_alphanumeric("Hello123"));
+/// assert!(!is_valid_ascii_alphanumeric("Hello_123"));
+/// assert!(!is_valid_ascii_alphanumeric("سلام"));
+/// ```
+pub fn is_valid_ascii_alphanumeric(s: &str) -> bool {
+    s.chars().all(|c| c.is_ascii_alphanumeric())
+}
+
+/// Returns `true` if the string is a valid IPv4 or IPv6 address.
+///
+/// This function tries to parse the string into an `IpAddr`.
+/// If parsing succeeds, the string is a valid IP address.
+///
+/// # Examples
+///
+/// ```
+/// # use macros_core::is_valid_ip;
+/// assert!(is_valid_ip("192.168.0.1"));
+/// assert!(is_valid_ip("::1"));
+/// assert!(!is_valid_ip("999.999.999.999"));
+/// assert!(!is_valid_ip("not_an_ip"));
+/// ```
+pub fn is_valid_ip(s: &str) -> bool {
+    s.parse::<IpAddr>().is_ok()
+}
+
+/// Checks whether the input is valid JSON.
+/// Input: value `&str`
+/// Output: `true` if the string is a complete, valid JSON value; otherwise `false`.
+/// Behavior: no panics, high-performance, idiomatic.
+pub fn is_valid_json(value: &str) -> bool {
+    // Use Deserializer to parse a single JSON value and ensure no trailing non-whitespace data.
+    // This approach gives more control and can be faster than `serde_json::from_str` for this check.
+    if serde_json::from_str::<serde_json::Value>(value).is_err() {
+        return false;
+    }
+
+    true
+}
+/// Validate if the given string is a valid date (YYYY-MM-DD).
+pub fn is_valid_date(value: &str) -> bool {
+    PrimitiveDateTime::parse(&format!("{value} 00:00:00"), &DATETIME_FORMAT).is_ok()
+}
+
+/// Validate if the given string is a valid datetime (YYYY-MM-DD HH:MM:SS).
+pub fn is_valid_datetime(value: &str) -> bool {
+    PrimitiveDateTime::parse(value, &DATETIME_FORMAT).is_ok()
+}
+
+/// Validate if the given string is a valid time (HH:MM:SS).
+pub fn is_valid_time(value: &str) -> bool {
+    PrimitiveDateTime::parse(&format!("2010-10-10 {value}"), &DATETIME_FORMAT).is_ok()
+}
+
+/// Validate if `value` is after the given date (YYYY-MM-DD).
+pub fn is_after(value: &str, target: &str) -> bool {
+    let value_date = PrimitiveDateTime::parse(value, DATETIME_FORMAT).unwrap();
+    let target_date = PrimitiveDateTime::parse(target, DATETIME_FORMAT).unwrap();
+    value_date > target_date
+}
+
+/// Validate if `value` is before the given date (YYYY-MM-DD).
+pub fn is_before(value: &str, target: &str) -> bool {
+    let value_date = PrimitiveDateTime::parse(value, DATETIME_FORMAT).unwrap();
+    let target_date = PrimitiveDateTime::parse(target, DATETIME_FORMAT).unwrap();
+    value_date < target_date
+}
+
+pub fn is_after_option(value: &str, target: &str) -> Option<bool> {
+    let mut target_temp = target.to_string();
+    let mut value_temp = value.to_string();
+    // 2010-11-11
+    if target_temp.len() == 10 {
+        target_temp = format!("{} 00:00:00", target);
+    }
+    // if value_temp.len() == 10 {
+    //     value_temp = format!("{} 00:00:00", target);
+    // }
+
+    if value_temp.len() == 10 {
+        value_temp = format!("{} 00:00:00", value);
+    }
+
+    let value_date = PrimitiveDateTime::parse(&value_temp, DATETIME_FORMAT).ok()?;
+    let target_date = PrimitiveDateTime::parse(&target_temp, DATETIME_FORMAT).ok()?;
+    Some(value_date > target_date)
+}
+
+/// Rule target as a datetime: `YYYY-MM-DD` means midnight.
+fn parse_target_datetime(target: &str) -> Result<PrimitiveDateTime, time::error::Parse> {
+    if target.len() == 10 {
+        PrimitiveDateTime::parse(&format!("{target} 00:00:00"), &DATETIME_FORMAT)
+    } else {
+        PrimitiveDateTime::parse(target, &DATETIME_FORMAT)
+    }
+}
+
+pub fn is_after_option_datetime_ex(value: PrimitiveDateTime, target: &str) -> Option<bool> {
+    // match PrimitiveDateTime::parse(&format!("{target} 00:00:00"), &DATETIME_FORMAT) {
+    match parse_target_datetime(target) {
+        Ok(target_date) => Some(value > target_date),
+        Err(_) => None,
+    }
+}
+pub fn is_after_option_date_ex(value: Date, target: &str) -> Option<bool> {
+    // match Date::parse(target, &DATE_FORMAT) {
+
+    // a datetime target like `2024-01-01 10:00:00` compares by its date part
+    match Date::parse(target.get(..10).unwrap_or(target), &DATE_FORMAT) {
+        Ok(target_date) => Some(value > target_date),
+        Err(_) => None,
+    }
+}
+
+pub fn is_before_option(value: &str, target: &str) -> Option<bool> {
+    let mut target_temp = target.to_string();
+    let mut value_temp = value.to_string();
+    // 2010-11-11
+    if target_temp.len() == 10 {
+        target_temp = format!("{} 00:00:00", target);
+    }
+    // if value_temp.len() == 10 {
+    //     value_temp = format!("{} 00:00:00", target);
+    // }
+
+    if value_temp.len() == 10 {
+        value_temp = format!("{} 00:00:00", value);
+    }
+
+    let value_date = PrimitiveDateTime::parse(&value_temp, DATETIME_FORMAT).ok()?;
+    let target_date = PrimitiveDateTime::parse(&target_temp, DATETIME_FORMAT).ok()?;
+    Some(value_date < target_date)
+}
+
+pub fn is_before_option_datetime_ex(value: PrimitiveDateTime, target: &str) -> Option<bool> {
+    // match PrimitiveDateTime::parse(&format!("{target} 00:00:00"), &DATETIME_FORMAT) {
+    match parse_target_datetime(target) {
+        Ok(target_date) => Some(value < target_date),
+        Err(_) => None,
+    }
+}
+pub fn is_before_option_date_ex(value: Date, target: &str) -> Option<bool> {
+    // match Date::parse(target, &DATE_FORMAT) {
+
+    // a datetime target like `2024-01-01 10:00:00` compares by its date part
+    match Date::parse(target.get(..10).unwrap_or(target), &DATE_FORMAT) {
+        Ok(target_date) => Some(value < target_date),
+        Err(_) => None,
+    }
+}
+
+// Helper function to convert any numeric type to i64
+pub fn convert_to_i64<T>(value: T) -> i64
+where
+    T: Into<i64> + Copy, // Make sure T can be converted to i64
+{
+    value.into() // Convert to i64 using the Into trait
+}
+// Helper function to convert any numeric type to sting
+
+pub fn convert_to_string<T>(value: T) -> String
+where
+    T: ToString,
+{
+    value.to_string()
+}

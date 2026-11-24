@@ -184,7 +184,7 @@ impl Table {
     fn make_field(column: &Column) -> String {
         // map ColumnDataType -> Rust type
         let mut rust_type = match column.data_type {
-            ColumnDataType::DTId => "i64".to_string(),
+            ColumnDataType::DTId => "PKeyType".to_string(),
             ColumnDataType::DTBoolean => "bool".to_string(),
             ColumnDataType::DTTinyInteger => "i8".to_string(),
             ColumnDataType::DTSmallInteger => "i16".to_string(),
@@ -214,13 +214,14 @@ impl Table {
             ColumnDataType::DTSoftDelete => "Option<time::OffsetDateTime>".to_string(),
             ColumnDataType::DTEnum | ColumnDataType::DTSet => "String".to_string(),
             // ColumnDataType::DTMorph => "i64".to_string(),
-            ColumnDataType::DTMorph => if CONFIG.database.connection == DatabaseEngine::Mysql {
-                "u64"
-                // "i64"  // we choose this yet maybe need change
-            } else {
-                "i64"
-            }
-            .to_string(),
+            ColumnDataType::DTMorph => "PKeyType".to_string(),
+            // if CONFIG.database.connection == DatabaseEngine::Mysql {
+            // "PKeyType"
+            //     // "i64"  // we choose this yet maybe need change
+            // } else {
+            //     "PKeyType"
+            // }
+            // .to_string(),
             ColumnDataType::DTNone => "()".to_string(),
         };
 
@@ -232,7 +233,10 @@ impl Table {
         //     rust_type = rust_type.replace("i", "u");
         // }
 
-        if column.unsigned && CONFIG.database.connection == DatabaseEngine::Mysql {
+        if column.unsigned
+            && CONFIG.database.connection == DatabaseEngine::Mysql
+            && column.name != "id"
+        {
             // replace("i", "u") also rewrote names like `time::PrimitiveDateTime`
             for (signed, unsigned) in [("i8", "u8"), ("i16", "u16"), ("i32", "u32"), ("i64", "u64")]
             {

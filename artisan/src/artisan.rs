@@ -14,6 +14,7 @@ use crate::make::model::{NewModelArgs, model};
 
 use crate::db::seed::SeedArgs;
 use crate::make::factory::{NewFactoryArgs, factory};
+use crate::make::middleware::{NewMiddlewareArgs, middleware};
 use crate::make::seeder::{NewSeederArgs, seeder};
 use dialoguer::{Confirm, theme::ColorfulTheme};
 use rustavel_core::helper::terminal_ui::{TitleKind, title};
@@ -87,6 +88,8 @@ enum MakeCmd {
     Factory(NewFactoryArgs),
     /// create new seeder
     Seeder(NewSeederArgs),
+    /// create new middleware
+    Middleware(NewMiddlewareArgs),
 }
 #[derive(Subcommand, Debug)]
 enum DbCmd {
@@ -221,6 +224,12 @@ async fn main() {
                     seeder(&args).await.unwrap_or_else(|e| {
                         println!("{:?}", e);
                         title(TitleKind::Error, &format!("seeder error: {:?}", e));
+                    });
+                }
+                MakeCmd::Middleware(args) => {
+                    middleware(&args).await.unwrap_or_else(|e| {
+                        println!("{:?}", e);
+                        title(TitleKind::Error, &format!("middleware error: {:?}", e));
                     });
                 }
             }

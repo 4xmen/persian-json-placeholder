@@ -7,7 +7,6 @@ rust-version.workspace = true
 [dependencies]
 serde.workspace = true
 regex.workspace = true
-once_cell.workspace = true
 time.workspace = true
 serde_json.workspace = true
 #illuminate-str.workspace = true

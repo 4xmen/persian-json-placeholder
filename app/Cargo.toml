@@ -19,7 +19,6 @@ dotenv.workspace = true
 axum-extra.workspace = true
 tower.workspace = true
 sqlx.workspace = true
-once_cell.workspace = true
 async-trait.workspace = true
 serde_json.workspace = true
 axum-params.workspace = true

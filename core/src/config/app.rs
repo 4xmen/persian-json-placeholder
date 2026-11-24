@@ -1,7 +1,8 @@
 use crate::config::env::env_bool;
+use serde::Serialize;
 use std::env;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct AppConfig {
     pub name: String,
     pub env: String,
