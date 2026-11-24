@@ -2,6 +2,7 @@ use crate::make::make_error::MakeError;
 use data_encoding::BASE64;
 use rand::TryRng;
 use rand::rngs::SysRng;
+use rustavel_core::helper::file::project_root;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -29,7 +30,7 @@ pub fn generate_laravel_app_key() -> String {
 ///    - If not found, append `key=value` to the end of the file.
 /// 4. Write the updated content back to `.env`, creating the file if necessary.
 pub fn set_env_value(key: &str, value: &str) -> std::io::Result<()> {
-    let env_path: PathBuf = std::env::current_dir()?.join(".env");
+    let env_path: PathBuf = project_root()?.join(".env");
 
     let mut content = if env_path.exists() {
         fs::read_to_string(&env_path)?

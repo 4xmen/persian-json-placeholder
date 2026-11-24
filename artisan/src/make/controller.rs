@@ -2,6 +2,7 @@ use clap::Args;
 use illuminate_str::Str;
 use minijinja::Environment;
 use minijinja::value::Serde;
+use rustavel_core::helper::file::project_root;
 use rustavel_core::helper::file_content::FileContent;
 use rustavel_core::helper::terminal_ui::{Status, operation};
 use std::time::Instant;
@@ -49,7 +50,7 @@ pub async fn controller(args: &NewControllerArgs) -> Result<(), MakeError> {
 
     let rendered = env.get_template("controller")?.render(Serde(&ctx))?;
 
-    let base = std::env::current_dir()?.join("app/src/http/controllers");
+    let base = project_root()?.join("app/src/http/controllers");
     let generated_path = base.join(format!("{}.rs", Str::snake(&controller_name, "_")));
 
     // Write controller file

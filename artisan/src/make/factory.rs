@@ -2,6 +2,7 @@ use clap::Args;
 use illuminate_str::Str;
 use minijinja::Environment;
 use minijinja::value::Serde;
+use rustavel_core::helper::file::project_root;
 use rustavel_core::helper::file_content::FileContent;
 use rustavel_core::helper::terminal_ui::{Status, operation};
 use std::time::Instant;
@@ -57,7 +58,7 @@ pub async fn factory(args: &NewFactoryArgs) -> Result<(), MakeError> {
     };
     let rendered = env.get_template("factory")?.render(Serde(&ctx))?;
 
-    let base = std::env::current_dir()?.join("database/src/factories/");
+    let base = project_root()?.join("database/src/factories/");
     let generated_path = base.join(format!("{}.rs", Str::snake(&factory_name, "_")));
 
     // Write controller file
