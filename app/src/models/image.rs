@@ -1,11 +1,9 @@
 use crate::helper::general::asset_url;
-use serde::{Deserialize, Serialize};
 use macros::resource;
 // this is an impl from generated model
 use super::Image;
 
 impl Image {}
-
 
 resource! {
     pub ImageResource from Image {

@@ -1,9 +1,9 @@
 //!  this code generating by system
 //!  if you want edit create backup from your modified code
 
+use rustavel_core::config::database::PKeyType;
 use rustavel_core::mvc::model::Model;
 use serde::{Deserialize, Serialize};
-use rustavel_core::config::database::PKeyType;
 
 #[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 #[allow(dead_code)]

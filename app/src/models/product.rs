@@ -1,15 +1,15 @@
-use rustavel_core::route;
-use rustavel_core::config::database::PKeyType;
-use macros::{project, resource};
 use crate::helper::general::asset_url;
 use crate::product_fields;
+use macros::{project, resource};
+use rustavel_core::config::database::PKeyType;
+use rustavel_core::route;
 // this is an impl from generated model
 use super::{Category, Image, Product};
 use crate::helper::http_functions::ROUTE_MANAGER;
 use crate::models::category::CategoryResource;
 use crate::models::comment::{CommentResource, CommentRow};
 use crate::models::image::ImageResource;
-use crate::models::user::{UserSimple,UserSimpleResource};
+use crate::models::user::UserSimple;
 
 impl Product {}
 

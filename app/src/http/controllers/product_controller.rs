@@ -1,18 +1,17 @@
 // main model
-use crate::models::{Category, Comment, Image, Product};
+use crate::models::{Category, Image, Product};
 
-use crate::helper::general::{ asset_url};
-use crate::http::controllers::post_controller::{PaginationQuery};
+use crate::helper::paginator::PaginateBuilder;
+use crate::http::controllers::post_controller::PaginationQuery;
+use crate::models::comment::CommentRow;
+use crate::models::product::{ProductRow, ProductRowResource, ProductSingleResource};
+use crate::models::user::UserSimple;
 use axum::Json;
 use axum::extract::{OriginalUri, Path, Query, State};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
-use sqlx::AssertSqlSafe;
 use rustavel_core::config::database::DbPoolType;
-use crate::helper::paginator::PaginateBuilder;
-use crate::models::comment::CommentRow;
-use crate::models::product::{ProductRow, ProductRowResource, ProductSingleResource};
-use crate::models::user::UserSimple;
+use sqlx::AssertSqlSafe;
 
 pub async fn index(
     State(pool): State<DbPoolType>,
@@ -20,12 +19,7 @@ pub async fn index(
     Query(query): Query<PaginationQuery>,
 ) -> impl IntoResponse {
     let page = query.page.unwrap_or(1).max(1);
-    let max = query
-        .max
-        .or(query.count)
-        .unwrap_or(10)
-        .clamp(1, 100);
-
+    let max = query.max.or(query.count).unwrap_or(10).clamp(1, 100);
 
     // Total count
     let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM products")
@@ -40,23 +34,26 @@ pub async fn index(
 
     // Fetch products
 
-    let products: Vec<ProductRow> = sqlx::query_as(AssertSqlSafe(format!(r#"
+    let products: Vec<ProductRow> = sqlx::query_as(AssertSqlSafe(format!(
+        r#"
         SELECT {} FROM products
         ORDER BY id DESC
         LIMIT ? OFFSET ?
-    "#, ProductRow::COLUMNS)))
-        .bind(max as i64)
-        .bind(offset as i64)
-        .fetch_all(&pool)
-        .await
-        .unwrap_or_default();
+    "#,
+        ProductRow::COLUMNS
+    )))
+    .bind(max as i64)
+    .bind(offset as i64)
+    .fetch_all(&pool)
+    .await
+    .unwrap_or_default();
 
     // Convert Product -> ProductResponse
     let data = products
         .into_iter()
         .map(ProductRowResource::from)
         .collect::<Vec<_>>();
-     // Build pagination response
+    // Build pagination response
     let pagination = PaginateBuilder::new(max, count, page, uri.to_string()).build(data);
 
     Json(pagination)
@@ -115,10 +112,13 @@ pub async fn show(State(pool): State<DbPoolType>, Path(slug): Path<String>) -> i
     ) {
         Ok(result) => result,
         Err(db_err) => {
-            println!("{:?}",db_err);
-            return StatusCode::INTERNAL_SERVER_ERROR.into_response()
-        },
+            println!("{:?}", db_err);
+            return StatusCode::INTERNAL_SERVER_ERROR.into_response();
+        }
     };
 
-    Json( ProductSingleResource::from((product,user,categories,images,comments))).into_response()
+    Json(ProductSingleResource::from((
+        product, user, categories, images, comments,
+    )))
+    .into_response()
 }

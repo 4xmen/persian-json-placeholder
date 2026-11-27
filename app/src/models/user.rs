@@ -1,10 +1,10 @@
+use crate::helper::http_functions::ROUTE_MANAGER;
+use crate::models::post::{PostRow, PostsResource};
+use crate::models::product::{ProductRow, ProductRowResource};
 use crate::user_fields;
 use macros::{project, resource};
 use rustavel_core::config::database::PKeyType;
 use rustavel_core::route;
-use crate::helper::http_functions::ROUTE_MANAGER;
-use crate::models::post::{PostRow, PostsResource};
-use crate::models::product::{ProductRow, ProductRowResource};
 // this is an impl from generated model
 use super::User;
 

@@ -1,7 +1,8 @@
 // main model
-use crate::models::{Post};
+use crate::models::Post;
 
 use crate::helper::paginator::PaginateBuilder;
+use crate::models::comment::CommentRow;
 use crate::models::post::{PostResource, PostRow, PostsResource};
 use crate::models::user::UserSimple;
 use axum::Json;
@@ -9,9 +10,8 @@ use axum::extract::{OriginalUri, Path, Query, State};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
 use rustavel_core::config::database::DbPoolType;
-use serde::{Deserialize};
+use serde::Deserialize;
 use sqlx::AssertSqlSafe;
-use crate::models::comment::CommentRow;
 
 #[derive(Debug, Deserialize)]
 pub struct PaginationQuery {
@@ -26,12 +26,7 @@ pub async fn index(
     Query(query): Query<PaginationQuery>,
 ) -> impl IntoResponse {
     let page = query.page.unwrap_or(1).max(1);
-    let max = query
-        .max
-        .or(query.count)
-        .unwrap_or(10)
-        .clamp(1, 100);
-
+    let max = query.max.or(query.count).unwrap_or(10).clamp(1, 100);
 
     // Total count
     let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM posts")
@@ -85,7 +80,6 @@ pub async fn show(State(pool): State<DbPoolType>, Path(slug): Path<String>) -> i
         Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     };
 
-
     let (user, comments) = match tokio::try_join!(
         sqlx::query_as::<_, UserSimple>(AssertSqlSafe(format!(
             "SELECT {} FROM users WHERE id = ?",
@@ -93,19 +87,22 @@ pub async fn show(State(pool): State<DbPoolType>, Path(slug): Path<String>) -> i
         )))
         .bind(post.user_id)
         .fetch_one(&pool),
-        sqlx::query_as::<_, CommentRow>(AssertSqlSafe(format!(r#"
+        sqlx::query_as::<_, CommentRow>(AssertSqlSafe(format!(
+            r#"
         SELECT {}
         FROM comments
         WHERE commentable_type = 'Model::Post'
         AND commentable_id = ?
-    "#,CommentRow::COLUMNS)))
-            .bind(post.id)
-            .fetch_all(&pool),
+    "#,
+            CommentRow::COLUMNS
+        )))
+        .bind(post.id)
+        .fetch_all(&pool),
     ) {
         Ok(result) => result,
         Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     };
 
-    let post = PostResource::from((post,user,comments));
+    let post = PostResource::from((post, user, comments));
     Json(post).into_response()
 }

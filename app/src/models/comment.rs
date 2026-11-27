@@ -1,7 +1,7 @@
-use rustavel_core::config::database::PKeyType;
+use crate::comment_fields;
 use macros::project;
 use macros::resource;
-use crate::comment_fields;
+use rustavel_core::config::database::PKeyType;
 // this is an impl from generated model
 use super::Comment;
 

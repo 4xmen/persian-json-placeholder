@@ -1,6 +1,4 @@
-use std::fmt::format;
 // main model
-use crate::models::{Post, Product};
 
 use crate::models::post::PostRow;
 use crate::models::product::ProductRow;

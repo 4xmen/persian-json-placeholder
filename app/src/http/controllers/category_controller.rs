@@ -1,14 +1,12 @@
 // main model
 use crate::models::Category;
 
+use crate::models::category::{CategoryResource, SingleCategory};
 use axum::Json;
 use axum::extract::{Path, State};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
-use rustavel_core::config::CONFIG;
 use rustavel_core::config::database::DbPoolType;
-use serde::Serialize;
-use crate::models::category::{CategoryResource, SingleCategory};
 
 pub async fn index(State(pool): State<DbPoolType>) -> Result<impl IntoResponse, StatusCode> {
     let sql = r#"
@@ -23,9 +21,7 @@ pub async fn index(State(pool): State<DbPoolType>) -> Result<impl IntoResponse, 
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
 
-    Ok(Json(
-       CategoryResource::collection(cats)
-    ))
+    Ok(Json(CategoryResource::collection(cats)))
 }
 
 pub async fn show(State(pool): State<DbPoolType>, Path(slug): Path<String>) -> impl IntoResponse {
@@ -67,6 +63,5 @@ pub async fn show(State(pool): State<DbPoolType>, Path(slug): Path<String>) -> i
         Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     };
 
-
-    Json(SingleCategory::from((category,parent,children))).into_response()
+    Json(SingleCategory::from((category, parent, children))).into_response()
 }

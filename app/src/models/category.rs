@@ -1,4 +1,3 @@
-use axum_extra::routing::Resource;
 use crate::helper::general::asset_url;
 use macros::resource;
 use rustavel_core::route;
