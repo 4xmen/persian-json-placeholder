@@ -5,3 +5,7 @@ artisan = "run --target-dir target/target-cli --bin artisan --" # target is seda
 
 [resolver]
 incompatible-rust-versions = "fallback"
+
+# Optional: Enable compiler caching with sccache
+# [build]
+# rustc-wrapper = "sccache"

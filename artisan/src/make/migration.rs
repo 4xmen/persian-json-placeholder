@@ -5,6 +5,7 @@ use illuminate_str::Str;
 use minijinja::Environment;
 use minijinja::value::Serde;
 use rustavel_core::helper::datetime::now_compact;
+use rustavel_core::helper::file::project_root;
 use rustavel_core::helper::file_content::FileContent;
 use rustavel_core::helper::terminal_ui::{Status, operation};
 use std::fs;
@@ -116,14 +117,14 @@ pub async fn migrate(args: &NewMigArgs) -> Result<bool, MakeError> {
 fn resolve_target_path(file_name: &str, args: &NewMigArgs) -> Result<PathBuf, io::Error> {
     match &args.path {
         None => {
-            let base = std::env::current_dir()?.join("database/src/migrations");
+            let base = project_root()?.join("database/src/migrations");
             Ok(base.join(file_name))
         }
 
         Some(path) if args.realpath => Ok(PathBuf::from(path).join(file_name)),
 
         Some(path) => {
-            let cwd = std::env::current_dir()?;
+            let cwd = project_root()?;
             Ok(cwd.join(path).join(file_name))
         }
     }
@@ -142,7 +143,7 @@ fn resolve_target_path(file_name: &str, args: &NewMigArgs) -> Result<PathBuf, io
 #[allow(dead_code)]
 pub async fn register_new_migration(final_name: &str, struct_raw: &str) -> io::Result<()> {
     // Locate mod.rs
-    let mod_rs_path: PathBuf = std::env::current_dir()?.join("database/src/migrations/registry.rs");
+    let mod_rs_path: PathBuf = project_root()?.join("database/src/migrations/registry.rs");
 
     let mut file_data = match FileContent::get(mod_rs_path.to_str().unwrap()).await {
         Ok(v) => v,

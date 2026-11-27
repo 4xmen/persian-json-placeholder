@@ -8,6 +8,7 @@ use crate::make::seeder::{NewSeederArgs, seeder};
 use clap::Args;
 use illuminate_str::Str;
 use minijinja::{Environment, context};
+use rustavel_core::helper::file::project_root;
 use rustavel_core::helper::file_content::FileContent;
 use rustavel_core::helper::terminal_ui::{Status, operation};
 use tokio::time::Instant;
@@ -43,7 +44,7 @@ pub async fn model(args: &NewModelArgs) -> Result<(), MakeError> {
     let model_name = Str::ucfirst(&Str::singular(&args.name));
 
     // check before writing anything, so nothing is half-created
-    let model_path = std::env::current_dir()?
+    let model_path = project_root()?
         .join("app/src/models")
         .join(format!("{}.rs", Str::snake(&model_name, "_")));
     ensure_new_file(&model_path)?;

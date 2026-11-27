@@ -3,6 +3,7 @@ use illuminate_str::Str;
 use minijinja::Environment;
 use minijinja::value::Serde;
 use rustavel_core::db::schema::ModelData;
+use rustavel_core::helper::file::project_root;
 use rustavel_core::helper::file_content::FileContent;
 const MODEL_GENERATED_TEMPLATE: &str = include_str!("../make/templates/model_generated.rs.j2");
 
@@ -22,7 +23,7 @@ pub async fn save_generated_model(
 ) -> Result<(), MakeError> {
     let mut env = Environment::new();
     env.add_template("model_generated", MODEL_GENERATED_TEMPLATE)?;
-    let base = std::env::current_dir()?.join("app/src/models");
+    let base = project_root()?.join("app/src/models");
     // let generated_path = base.join(format!("{}_generated.rs", model_name.to_lowercase()));
     let generated_path = base.join(format!("{}_generated.rs", Str::snake(&model_name, "_")));
 

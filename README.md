@@ -29,7 +29,7 @@ while respecting the values of the Rust ecosystem: correctness, clarity, and per
 ### Some artisan commands sample
 
 ```bash
-cargo artisan make model User -m -c # model + migration + controller
+cargo artisan make model User -m -c -s -f # model + migration + controller + seeder + factory
 #cargo artisan make migration CreateTodos  -t todos # migration
 #cargo artisan make migrate # do migrate / may rollback
 cargo artisan make migration CreateTodos -c todos # migration that creates a table (-t alters one)
@@ -149,6 +149,34 @@ let admin = UserFactory::factory().state(|u| {
     u.role = Role::Admin;
 })
 .create();
+```
+
+### API resource sample:
+```rust
+pub struct Todo {
+  pub id: PKeyType,
+  pub title: String,
+  pub done: bool,
+  pub created_at: Option<time::PrimitiveDateTime>,
+  pub updated_at: Option<time::PrimitiveDateTime>,
+  pub deleted_at: Option<time::PrimitiveDateTime>,
+}
+resource! {
+    pub TodoResource from Todo{
+        id,
+        title,
+        done,
+        created_at,
+        url = resource_url(this.id)
+    }
+}
+
+fn resource_url(id: PKeyType) -> String {
+    route!("todos.show", id).unwrap_or_default()
+}
+
+Json(TodoResource::from(todo))
+Json(TodoResource::collection(todos))
 ```
 
 Note:

@@ -15,6 +15,7 @@
 
 use crate::checkmate::*;
 use crate::pawn::pawn_expand;
+use crate::projection::ProjectInput;
 use crate::resource::{ResourceDef, ResponseDef};
 use proc_macro::TokenStream;
 use quote::quote;
@@ -25,6 +26,7 @@ use syn::{DeriveInput, parse_macro_input};
 
 mod checkmate;
 mod pawn;
+mod projection;
 mod resource;
 
 /// Derive macro for the CheckMate validation system.
@@ -199,4 +201,29 @@ pub fn resource_response(input: TokenStream) -> TokenStream {
     // Parse the `name: expr` list, then generate a local serializable struct.
     let response = parse_macro_input!(input as ResponseDef);
     response.expand().into()
+}
+
+/// Generates a projection struct + a `COLUMNS` constant.
+///
+/// The generated struct always derives:
+/// `Clone`, `serde::Serialize`, `serde::Deserialize`, `sqlx::FromRow`.
+///
+/// # Example
+/// ```ignore
+/// project! {
+///     Todo {
+///         id: i64,
+///         title: String,
+///         done: bool,
+///     }
+///     TodoRow: only(id, title)
+/// }
+/// ```
+#[proc_macro]
+pub fn project(tokens: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(tokens as ProjectInput);
+    match projection::expand(input) {
+        Ok(ts) => ts,
+        Err(err) => err.to_compile_error().into(),
+    }
 }

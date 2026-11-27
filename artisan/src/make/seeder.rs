@@ -4,6 +4,7 @@ use clap::Args;
 use illuminate_str::Str;
 use minijinja::Environment;
 use minijinja::value::Serde;
+use rustavel_core::helper::file::project_root;
 use rustavel_core::helper::file_content::FileContent;
 use rustavel_core::helper::terminal_ui::{Status, operation};
 use std::time::Instant;
@@ -57,7 +58,7 @@ pub async fn seeder(args: &NewSeederArgs) -> Result<(), MakeError> {
     };
     let rendered = env.get_template("seeder")?.render(Serde(&ctx))?;
 
-    let base = std::env::current_dir()?.join("database/src/seeders/");
+    let base = project_root()?.join("database/src/seeders/");
     let generated_path = base.join(format!("{}.rs", Str::snake(&seeder_name, "_")));
 
     // Write controller file

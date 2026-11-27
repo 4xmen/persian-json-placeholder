@@ -14,3 +14,4 @@ tokio.workspace = true
 axum.workspace = true
 tower = { workspace = true, features = ["util"] }
 serde_json.workspace = true
+sqlx.workspace = true

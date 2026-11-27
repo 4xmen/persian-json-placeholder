@@ -4,6 +4,7 @@ use clap::Args;
 use illuminate_str::Str;
 use minijinja::Environment;
 use minijinja::value::Serde;
+use rustavel_core::helper::file::project_root;
 use rustavel_core::helper::file_content::FileContent;
 use rustavel_core::helper::terminal_ui::{Status, operation};
 use std::time::Instant;
@@ -42,7 +43,7 @@ pub async fn middleware(args: &NewMiddlewareArgs) -> Result<(), MakeError> {
     };
     let rendered = env.get_template("middleware")?.render(Serde(&ctx))?;
 
-    let base = std::env::current_dir()?.join("app/src/http/middleware");
+    let base = project_root()?.join("app/src/http/middleware");
     let generated_path = base.join(format!("{}.rs", &mw_name));
 
     // Write controller file
