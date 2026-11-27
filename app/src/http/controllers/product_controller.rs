@@ -1,25 +1,18 @@
 // main model
 use crate::models::{Category, Comment, Image, Product};
 
-use crate::helper::general::{PaginateBuilder, asset_url};
+use crate::helper::general::{ asset_url};
 use crate::http::controllers::post_controller::{PaginationQuery};
-use crate::models::category::CategoryResponse;
-use crate::models::product::ProductResponse;
 use axum::Json;
 use axum::extract::{OriginalUri, Path, Query, State};
 use axum::http::StatusCode;
 use axum::response::IntoResponse;
-use rustavel_core::config::CONFIG;
+use sqlx::AssertSqlSafe;
 use rustavel_core::config::database::DbPoolType;
-use serde::Serialize;
-
-
-
-// #[derive(Serialize)]
-// pub struct ProductShowResponse {
-//     pub product: SingleProductResponse,
-//     pub comments: Vec<Comment>,
-// }
+use crate::helper::paginator::PaginateBuilder;
+use crate::models::comment::CommentRow;
+use crate::models::product::{ProductRow, ProductRowResource, ProductSingleResource};
+use crate::models::user::UserSimple;
 
 pub async fn index(
     State(pool): State<DbPoolType>,
@@ -27,7 +20,12 @@ pub async fn index(
     Query(query): Query<PaginationQuery>,
 ) -> impl IntoResponse {
     let page = query.page.unwrap_or(1).max(1);
-    let max = query.max.unwrap_or(10).clamp(1, 100);
+    let max = query
+        .max
+        .or(query.count)
+        .unwrap_or(10)
+        .clamp(1, 100);
+
 
     // Total count
     let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM products")
@@ -41,14 +39,12 @@ pub async fn index(
     let offset = (page - 1) * max;
 
     // Fetch products
-    let sql = r#"
-        SELECT *
-        FROM products
+
+    let products: Vec<ProductRow> = sqlx::query_as(AssertSqlSafe(format!(r#"
+        SELECT {} FROM products
         ORDER BY id DESC
         LIMIT ? OFFSET ?
-    "#;
-
-    let products: Vec<Product> = sqlx::query_as(sql)
+    "#, ProductRow::COLUMNS)))
         .bind(max as i64)
         .bind(offset as i64)
         .fetch_all(&pool)
@@ -56,9 +52,11 @@ pub async fn index(
         .unwrap_or_default();
 
     // Convert Product -> ProductResponse
-    let data: Vec<ProductResponse> = products.into_iter().map(ProductResponse::from).collect();
-
-    // Build pagination response
+    let data = products
+        .into_iter()
+        .map(ProductRowResource::from)
+        .collect::<Vec<_>>();
+     // Build pagination response
     let pagination = PaginateBuilder::new(max, count, page, uri.to_string()).build(data);
 
     Json(pagination)
@@ -80,14 +78,14 @@ pub async fn show(State(pool): State<DbPoolType>, Path(slug): Path<String>) -> i
     let sql_user = "SELECT id, name, email FROM users WHERE id = ?";
 
     let sql_comments = r#"
-        SELECT *
+        SELECT id, email, author, body, created_at
         FROM comments
         WHERE commentable_type = 'Model::Product'
         AND commentable_id = ?
     "#;
 
     let sql_images = r#"
-        SELECT id, product_id, image, thumb
+        SELECT *
         FROM images
         WHERE product_id = ?
     "#;
@@ -101,107 +99,26 @@ pub async fn show(State(pool): State<DbPoolType>, Path(slug): Path<String>) -> i
         WHERE pc.product_id = ?
     "#;
 
-    // let (user, comments, images, categories) = match tokio::try_join!(
-    //     sqlx::query_as::<_, UserResponse>(sql_user)
-    //         .bind(product.user_id)
-    //         .fetch_one(&pool),
-    //     sqlx::query_as::<_, Comment>(sql_comments)
-    //         .bind(product.id)
-    //         .fetch_all(&pool),
-    //     sqlx::query_as::<_, Image>(sql_images)
-    //         .bind(product.id)
-    //         .fetch_all(&pool),
-    //     sqlx::query_as::<_, Category>(sql_categories)
-    //         .bind(product.id)
-    //         .fetch_all(&pool),
-    // ) {
-    //     Ok(result) => result,
-    //     Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    // };
-    //
-    // let response = SingleProductResponse {
-    //     id: product.id,
-    //     name: product.name,
-    //     description: product.description,
-    //     slug: product.slug.clone(),
-    //     price: product.price,
-    //     quantity: product.quantity,
-    //     image: asset_url(&product.image),
-    //     thumb: asset_url(&product.thumb),
-    //     created_at: product.created_at,
-    //     updated_at: product.updated_at,
-    //     url: format!("{}/api/v1/products", CONFIG.app.url),
-    //
-    //     user,
-    //     categories: categories
-    //         .into_iter()
-    //         .map(|cat| {
-    //             CategoryResponse::from((cat, format!("{}/api/v1/categories", CONFIG.app.url)))
-    //         })
-    //         .collect(),
-    //     images: images.into_iter().map(ImageResponse::from).collect(),
-    // };
+    let (user, comments, images, categories) = match tokio::try_join!(
+        sqlx::query_as::<_, UserSimple>(sql_user)
+            .bind(product.user_id)
+            .fetch_one(&pool),
+        sqlx::query_as::<_, CommentRow>(sql_comments)
+            .bind(product.id)
+            .fetch_all(&pool),
+        sqlx::query_as::<_, Image>(sql_images)
+            .bind(product.id)
+            .fetch_all(&pool),
+        sqlx::query_as::<_, Category>(sql_categories)
+            .bind(product.id)
+            .fetch_all(&pool),
+    ) {
+        Ok(result) => result,
+        Err(db_err) => {
+            println!("{:?}",db_err);
+            return StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        },
+    };
 
-    Json( {})
-    .into_response()
+    Json( ProductSingleResource::from((product,user,categories,images,comments))).into_response()
 }
-
-// pub async fn create(State(_state): State<AppState>) -> impl IntoResponse {
-//     (StatusCode::OK, "to create Product called")
-// }
-//
-// pub async fn store(State(_state): State<AppState>, params: RawPathParams) -> impl IntoResponse {
-//     (
-//         StatusCode::OK,
-//         println!("to store Product called request: {:?}", params),
-//     )
-// }
-//
-// pub async fn edit(State(_state): State<AppState>, query: RawQuery) -> impl IntoResponse {
-//     (
-//         StatusCode::OK,
-//         println!("to edit Product called id: {:?}", query),
-//     )
-// }
-//
-// pub async fn update(
-//     State(_state): State<AppState>,
-//     query: RawQuery,
-//     params: RawPathParams,
-// ) -> impl IntoResponse {
-//     (
-//         StatusCode::OK,
-//         println!(
-//             "to edit Product called id and request: {:?}, {:?}",
-//             query, params
-//         ),
-//     )
-// }
-
-// pub async fn show(
-//     State(pool): State<DbPoolType>,
-//     Path(slug): Path<String>,
-// ) -> impl IntoResponse {
-//
-//     let sql_post = "SELECT * FROM products WHERE slug = ?";
-//     let sql_user = "SELECT id, name, email FROM users WHERE id = ?";
-//
-//     let sql_comment = r#"
-//         SELECT *
-//         FROM comments
-//         WHERE commentable_type = 'Model::Product'
-//         AND commentable_id = ?
-//     "#;
-//
-//     let sql_extra_images = "SELECT * FROM products WHERE product_id = ?";
-//     let sql_categories_list = r#"SELECT category_id FROM product_category
-//     WHERE product_id = ?"#;
-//     let sql_categories = "SELECT * FROM categories WHERE id IN(?)";
-// }
-
-// pub async fn destroy(State(_state): State<AppState>, query: RawQuery) -> impl IntoResponse {
-//     (
-//         StatusCode::OK,
-//         println!("to destroy Product called id: {:?}", query),
-//     )
-// }

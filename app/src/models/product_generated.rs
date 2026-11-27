@@ -35,3 +35,27 @@ impl Model for Product {
         &["id", "name", "description", "slug", "price", "quantity", "category_id", "user_id", "image", "thumb", "created_at", "updated_at"]
     }
 }
+
+/// the macro that the generator places next to each model generate projection of Product
+#[macro_export]
+macro_rules! product_fields {
+    ($($rest:tt)*) => {
+        project! {
+            Product {
+                id: PKeyType,
+                name: String,
+                description: Option<String>,
+                slug: String,
+                price: u64,
+                quantity: i32,
+                category_id: Option<u64>,
+                user_id: u64,
+                image: Option<String>,
+                thumb: Option<String>,
+                created_at: Option<time::PrimitiveDateTime>,
+                updated_at: Option<time::PrimitiveDateTime>,
+            }
+            $($rest)*
+        }
+    };
+}

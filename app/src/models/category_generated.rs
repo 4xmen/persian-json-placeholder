@@ -30,3 +30,22 @@ impl Model for Category {
         &["id", "name", "description", "slug", "parent_id", "image", "thumb"]
     }
 }
+
+/// the macro that the generator places next to each model generate projection of Category
+#[macro_export]
+macro_rules! category_fields {
+    ($($rest:tt)*) => {
+        project! {
+            Category {
+                id: PKeyType,
+                name: String,
+                description: Option<String>,
+                slug: String,
+                parent_id: Option<u64>,
+                image: Option<String>,
+                thumb: Option<String>,
+            }
+            $($rest)*
+        }
+    };
+}

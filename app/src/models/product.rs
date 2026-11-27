@@ -1,39 +1,49 @@
+use rustavel_core::route;
+use rustavel_core::config::database::PKeyType;
+use macros::{project, resource};
 use crate::helper::general::asset_url;
-use serde::Serialize;
+use crate::product_fields;
 // this is an impl from generated model
-use super::Product;
+use super::{Category, Image, Product};
+use crate::helper::http_functions::ROUTE_MANAGER;
+use crate::models::category::CategoryResource;
+use crate::models::comment::{CommentResource, CommentRow};
+use crate::models::image::ImageResource;
+use crate::models::user::{UserSimple,UserSimpleResource};
 
 impl Product {}
 
-#[derive(Serialize)]
-pub struct ProductResponse {
-    pub id: u64,
-    pub name: String,
-    pub description: Option<String>,
-    pub slug: String,
-    pub price: u64,
-    pub quantity: i32,
-    pub category_id: Option<u64>,
-    pub user_id: u64,
-    pub image: Option<String>,
-    pub thumb: Option<String>,
-    pub created_at: Option<time::PrimitiveDateTime>,
+product_fields!(ProductRow: except(user_id,category_id));
+
+resource! {
+    pub ProductRowResource from ProductRow {
+        id,
+        name,
+        description,
+        price,
+        quantity,
+        thumb = asset_url(this.thumb.as_deref()),
+        image = asset_url(this.image.as_deref()),
+        url = route!("api.v1.products.show", this.slug).unwrap_or_default(),
+        created_at,
+        updated_at,
+    }
 }
 
-impl From<Product> for ProductResponse {
-    fn from(product: Product) -> Self {
-        Self {
-            id: product.id,
-            name: product.name,
-            description: product.description,
-            slug: product.slug,
-            price: product.price,
-            quantity: product.quantity,
-            category_id: product.category_id,
-            user_id: product.user_id,
-            image: asset_url(product.image.as_deref()),
-            thumb: asset_url(product.thumb.as_deref()),
-            created_at: product.created_at,
-        }
+resource! {
+    pub ProductSingleResource from (Product, UserSimple,Vec<Category>,Vec<Image>, Vec<CommentRow>) {
+        id = this.0.id,
+        name = this.0.name,
+        description = this.0.description,
+        price = this.0.price,
+        quantity = this.0.quantity,
+        thumb = asset_url(this.0.thumb.as_deref()),
+        image = asset_url(this.0.image.as_deref()),
+        created_at = this.0.created_at,
+        updated_at = this.0.updated_at,
+        user: UserSimpleResource = this.1,
+        categories: Vec<CategoryResource> = this.2,
+        images: Vec<ImageResource> = this.3,
+        comments: Vec<CommentResource> = this.4,
     }
 }

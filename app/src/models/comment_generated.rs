@@ -31,3 +31,23 @@ impl Model for Comment {
         &["id", "body", "author", "email", "commentable_type", "commentable_id", "created_at", "updated_at"]
     }
 }
+
+/// the macro that the generator places next to each model generate projection of Comment
+#[macro_export]
+macro_rules! comment_fields {
+    ($($rest:tt)*) => {
+        project! {
+            Comment {
+                id: PKeyType,
+                body: String,
+                author: String,
+                email: String,
+                commentable_type: String,
+                commentable_id: PKeyType,
+                created_at: Option<time::PrimitiveDateTime>,
+                updated_at: Option<time::PrimitiveDateTime>,
+            }
+            $($rest)*
+        }
+    };
+}

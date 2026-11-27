@@ -31,3 +31,23 @@ impl Model for Post {
         &["id", "title", "slug", "body", "user_id", "image", "created_at", "updated_at"]
     }
 }
+
+/// the macro that the generator places next to each model generate projection of Post
+#[macro_export]
+macro_rules! post_fields {
+    ($($rest:tt)*) => {
+        project! {
+            Post {
+                id: PKeyType,
+                title: String,
+                slug: String,
+                body: Option<String>,
+                user_id: u64,
+                image: String,
+                created_at: Option<time::PrimitiveDateTime>,
+                updated_at: Option<time::PrimitiveDateTime>,
+            }
+            $($rest)*
+        }
+    };
+}

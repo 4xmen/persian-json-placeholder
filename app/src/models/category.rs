@@ -1,33 +1,34 @@
+use axum_extra::routing::Resource;
 use crate::helper::general::asset_url;
-use serde::{Deserialize, Serialize};
+use macros::resource;
+use rustavel_core::route;
 // this is an impl from generated model
 use super::Category;
+use crate::helper::http_functions::ROUTE_MANAGER;
 
 impl Category {}
 
-#[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
-pub struct CategoryResponse {
-    pub id: u64,
-    pub name: String,
-    pub description: Option<String>,
-    pub slug: String,
-    pub parent_id: Option<u64>,
-    pub image: Option<String>,
-    pub thumb: Option<String>,
-    pub url: String,
+resource! {
+    pub CategoryResource from Category {
+        id,
+        name,
+        description,
+        thumb = asset_url(this.thumb.as_deref()),
+        image = asset_url(this.image.as_deref()),
+        url = route!("api.v1.categories.show", this.slug).unwrap_or_default(),
+
+    }
 }
 
-impl From<(Category, String)> for CategoryResponse {
-    fn from((category, base_url): (Category, String)) -> Self {
-        Self {
-            id: category.id,
-            name: category.name,
-            description: category.description,
-            slug: category.slug.clone(),
-            parent_id: category.parent_id,
-            image: asset_url(category.image.as_deref()),
-            thumb: asset_url(category.thumb.as_deref()),
-            url: format!("{}/{}", base_url, category.slug),
-        }
+resource! {
+    pub SingleCategory from (Category,Option<Category>,Vec<Category>) {
+        id = this.0.id,
+        name = this.0.name,
+        description = this.0.description,
+        thumb = asset_url(this.0.thumb.as_deref()),
+        image = asset_url(this.0.image.as_deref()),
+        url = route!("api.v1.categories.show", this.0.slug).unwrap_or_default(),
+        parent : Option<CategoryResource> = this.1,
+        children: Vec<CategoryResource> = this.2,
     }
 }

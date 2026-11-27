@@ -27,3 +27,19 @@ impl Model for Image {
         &["id", "product_id", "image", "thumb"]
     }
 }
+
+/// the macro that the generator places next to each model generate projection of Image
+#[macro_export]
+macro_rules! image_fields {
+    ($($rest:tt)*) => {
+        project! {
+            Image {
+                id: PKeyType,
+                product_id: u64,
+                image: String,
+                thumb: String,
+            }
+            $($rest)*
+        }
+    };
+}
