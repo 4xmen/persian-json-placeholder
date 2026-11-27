@@ -25,8 +25,8 @@ impl From<(Category, String)> for CategoryResponse {
             description: category.description,
             slug: category.slug.clone(),
             parent_id: category.parent_id,
-            image: asset_url(&category.image),
-            thumb: asset_url(&category.thumb),
+            image: asset_url(category.image.as_deref()),
+            thumb: asset_url(category.thumb.as_deref()),
             url: format!("{}/{}", base_url, category.slug),
         }
     }

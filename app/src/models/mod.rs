@@ -11,6 +11,8 @@ pub mod post;
 pub mod post_generated;
 pub use post_generated::Post;
 pub mod product;
+pub mod product_category_generated;
+pub use product_category_generated::ProductCategory;
 pub mod product_generated;
 pub use product_generated::Product;
 pub mod todo;

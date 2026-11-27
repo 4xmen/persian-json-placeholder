@@ -3,11 +3,12 @@
 
 use rustavel_core::mvc::model::Model;
 use serde::{Deserialize, Serialize};
+use rustavel_core::config::database::PKeyType;
 
 #[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 #[allow(dead_code)]
 pub struct Category {
-    pub id: u64,
+    pub id: PKeyType,
     pub name: String,
     pub description: Option<String>,
     pub slug: String,
@@ -17,7 +18,7 @@ pub struct Category {
 }
 
 impl Model for Category {
-    type PrimaryKey = u64;
+    type PrimaryKey = PKeyType;
 
     fn table() -> &'static str {
         "categories"
@@ -26,14 +27,6 @@ impl Model for Category {
         "id"
     }
     fn columns() -> &'static [&'static str] {
-        &[
-            "id",
-            "name",
-            "description",
-            "slug",
-            "parent_id",
-            "image",
-            "thumb",
-        ]
+        &["id", "name", "description", "slug", "parent_id", "image", "thumb"]
     }
 }

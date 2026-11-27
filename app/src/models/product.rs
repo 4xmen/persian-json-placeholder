@@ -17,7 +17,7 @@ pub struct ProductResponse {
     pub user_id: u64,
     pub image: Option<String>,
     pub thumb: Option<String>,
-    pub created_at: Option<time::OffsetDateTime>,
+    pub created_at: Option<time::PrimitiveDateTime>,
 }
 
 impl From<Product> for ProductResponse {
@@ -31,8 +31,8 @@ impl From<Product> for ProductResponse {
             quantity: product.quantity,
             category_id: product.category_id,
             user_id: product.user_id,
-            image: asset_url(&product.image),
-            thumb: asset_url(&product.thumb),
+            image: asset_url(product.image.as_deref()),
+            thumb: asset_url(product.thumb.as_deref()),
             created_at: product.created_at,
         }
     }

@@ -11,14 +11,15 @@ use rustavel_core::config::CONFIG;
 use rustavel_core::config::database::DbPoolType;
 use serde::Serialize;
 use sqlx::FromRow;
+use rustavel_core::route;
 
 #[derive(Serialize, FromRow)]
 pub struct UserResponseWithoutRelations {
     id: u64,
     name: String,
     email: String,
-    created_at: Option<time::OffsetDateTime>,
-    updated_at: Option<time::OffsetDateTime>,
+    created_at: Option<time::PrimitiveDateTime>,
+    updated_at: Option<time::PrimitiveDateTime>,
 }
 #[derive(Serialize, FromRow)]
 pub struct UserResponse {
@@ -27,8 +28,8 @@ pub struct UserResponse {
     pub email: String,
     pub posts: Vec<PostResponse>,
     pub products: Vec<ProductResponse>,
-    pub created_at: Option<time::OffsetDateTime>,
-    pub updated_at: Option<time::OffsetDateTime>,
+    pub created_at: Option<time::PrimitiveDateTime>,
+    pub updated_at: Option<time::PrimitiveDateTime>,
 }
 pub async fn index(State(pool): State<DbPoolType>) -> Result<impl IntoResponse, StatusCode> {
     let sql = r#"
@@ -46,7 +47,7 @@ pub async fn index(State(pool): State<DbPoolType>) -> Result<impl IntoResponse, 
             println!("{:#?}", e);
             StatusCode::INTERNAL_SERVER_ERROR
         })?;
-
+    
     Ok(Json(users))
 }
 
@@ -144,10 +145,11 @@ pub async fn show(
             email: user.email,
             created_at: user.created_at,
             updated_at: user.updated_at,
-            posts: posts
-                .into_iter()
-                .map(|post| PostResponse::from((post, format!("{}/api/v1/posts", CONFIG.app.url))))
-                .collect(),
+            posts: vec![],
+            // posts: posts
+                // .into_iter()
+                // .map(|post| PostResponse::from((post, format!("{}/api/v1/posts", CONFIG.app.url))))
+                // .collect(),
             products: products.into_iter().map(ProductResponse::from).collect(),
         }),
     ))

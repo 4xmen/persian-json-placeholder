@@ -1,9 +1,9 @@
 //!  this code generating by system
 //!  if you want edit create backup from your modified code
 
-use rustavel_core::config::database::PKeyType;
 use rustavel_core::mvc::model::Model;
 use serde::{Deserialize, Serialize};
+use rustavel_core::config::database::PKeyType;
 
 #[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 #[allow(dead_code)]
@@ -11,12 +11,12 @@ pub struct User {
     pub id: PKeyType,
     pub name: String,
     pub email: String,
-    pub email_verified_at: Option<time::OffsetDateTime>,
+    pub email_verified_at: Option<time::PrimitiveDateTime>,
     pub password: String,
     pub remember_token: Option<String>,
-    pub created_at: Option<time::OffsetDateTime>,
-    pub updated_at: Option<time::OffsetDateTime>,
-    pub deleted_at: Option<time::OffsetDateTime>,
+    pub created_at: Option<time::PrimitiveDateTime>,
+    pub updated_at: Option<time::PrimitiveDateTime>,
+    pub deleted_at: Option<time::PrimitiveDateTime>,
 }
 
 impl Model for User {
@@ -29,16 +29,6 @@ impl Model for User {
         "id"
     }
     fn columns() -> &'static [&'static str] {
-        &[
-            "id",
-            "name",
-            "email",
-            "email_verified_at",
-            "password",
-            "remember_token",
-            "created_at",
-            "updated_at",
-            "deleted_at",
-        ]
+        &["id", "name", "email", "email_verified_at", "password", "remember_token", "created_at", "updated_at", "deleted_at"]
     }
 }

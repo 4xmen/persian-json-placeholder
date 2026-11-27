@@ -3,22 +3,23 @@
 
 use rustavel_core::mvc::model::Model;
 use serde::{Deserialize, Serialize};
+use rustavel_core::config::database::PKeyType;
 
 #[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 #[allow(dead_code)]
 pub struct Post {
-    pub id: u64,
+    pub id: PKeyType,
     pub title: String,
     pub slug: String,
     pub body: Option<String>,
     pub user_id: u64,
     pub image: String,
-    pub created_at: Option<time::OffsetDateTime>,
-    pub updated_at: Option<time::OffsetDateTime>,
+    pub created_at: Option<time::PrimitiveDateTime>,
+    pub updated_at: Option<time::PrimitiveDateTime>,
 }
 
 impl Model for Post {
-    type PrimaryKey = u64;
+    type PrimaryKey = PKeyType;
 
     fn table() -> &'static str {
         "posts"
@@ -27,15 +28,6 @@ impl Model for Post {
         "id"
     }
     fn columns() -> &'static [&'static str] {
-        &[
-            "id",
-            "title",
-            "slug",
-            "body",
-            "user_id",
-            "image",
-            "created_at",
-            "updated_at",
-        ]
+        &["id", "title", "slug", "body", "user_id", "image", "created_at", "updated_at"]
     }
 }

@@ -16,6 +16,9 @@ resource! {
     }
 }
 
+
+
+
 fn resource_url(id: PKeyType) -> String {
     route!("todos.show", id).unwrap_or_default()
 }

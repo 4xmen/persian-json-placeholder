@@ -3,18 +3,19 @@
 
 use rustavel_core::mvc::model::Model;
 use serde::{Deserialize, Serialize};
+use rustavel_core::config::database::PKeyType;
 
 #[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 #[allow(dead_code)]
 pub struct Image {
-    pub id: u64,
+    pub id: PKeyType,
     pub product_id: u64,
     pub image: String,
     pub thumb: String,
 }
 
 impl Model for Image {
-    type PrimaryKey = u64;
+    type PrimaryKey = PKeyType;
 
     fn table() -> &'static str {
         "images"

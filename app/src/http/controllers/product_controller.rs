@@ -2,9 +2,8 @@
 use crate::models::{Category, Comment, Image, Product};
 
 use crate::helper::general::{PaginateBuilder, asset_url};
-use crate::http::controllers::post_controller::{PaginationQuery, UserResponse};
+use crate::http::controllers::post_controller::{PaginationQuery};
 use crate::models::category::CategoryResponse;
-use crate::models::image::ImageResponse;
 use crate::models::product::ProductResponse;
 use axum::Json;
 use axum::extract::{OriginalUri, Path, Query, State};
@@ -14,31 +13,13 @@ use rustavel_core::config::CONFIG;
 use rustavel_core::config::database::DbPoolType;
 use serde::Serialize;
 
-#[derive(Serialize)]
-pub struct SingleProductResponse {
-    pub id: u64,
-    pub name: String,
-    pub description: Option<String>,
-    pub slug: String,
-    pub price: u64,
-    pub quantity: i32,
-    pub image: Option<String>,
-    pub thumb: Option<String>,
-    pub created_at: Option<time::OffsetDateTime>,
-    pub updated_at: Option<time::OffsetDateTime>,
 
-    pub url: String,
 
-    pub user: UserResponse,
-    pub categories: Vec<CategoryResponse>,
-    pub images: Vec<ImageResponse>,
-}
-
-#[derive(Serialize)]
-pub struct ProductShowResponse {
-    pub product: SingleProductResponse,
-    pub comments: Vec<Comment>,
-}
+// #[derive(Serialize)]
+// pub struct ProductShowResponse {
+//     pub product: SingleProductResponse,
+//     pub comments: Vec<Comment>,
+// }
 
 pub async fn index(
     State(pool): State<DbPoolType>,
@@ -120,51 +101,48 @@ pub async fn show(State(pool): State<DbPoolType>, Path(slug): Path<String>) -> i
         WHERE pc.product_id = ?
     "#;
 
-    let (user, comments, images, categories) = match tokio::try_join!(
-        sqlx::query_as::<_, UserResponse>(sql_user)
-            .bind(product.user_id)
-            .fetch_one(&pool),
-        sqlx::query_as::<_, Comment>(sql_comments)
-            .bind(product.id)
-            .fetch_all(&pool),
-        sqlx::query_as::<_, Image>(sql_images)
-            .bind(product.id)
-            .fetch_all(&pool),
-        sqlx::query_as::<_, Category>(sql_categories)
-            .bind(product.id)
-            .fetch_all(&pool),
-    ) {
-        Ok(result) => result,
-        Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
-    };
+    // let (user, comments, images, categories) = match tokio::try_join!(
+    //     sqlx::query_as::<_, UserResponse>(sql_user)
+    //         .bind(product.user_id)
+    //         .fetch_one(&pool),
+    //     sqlx::query_as::<_, Comment>(sql_comments)
+    //         .bind(product.id)
+    //         .fetch_all(&pool),
+    //     sqlx::query_as::<_, Image>(sql_images)
+    //         .bind(product.id)
+    //         .fetch_all(&pool),
+    //     sqlx::query_as::<_, Category>(sql_categories)
+    //         .bind(product.id)
+    //         .fetch_all(&pool),
+    // ) {
+    //     Ok(result) => result,
+    //     Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
+    // };
+    //
+    // let response = SingleProductResponse {
+    //     id: product.id,
+    //     name: product.name,
+    //     description: product.description,
+    //     slug: product.slug.clone(),
+    //     price: product.price,
+    //     quantity: product.quantity,
+    //     image: asset_url(&product.image),
+    //     thumb: asset_url(&product.thumb),
+    //     created_at: product.created_at,
+    //     updated_at: product.updated_at,
+    //     url: format!("{}/api/v1/products", CONFIG.app.url),
+    //
+    //     user,
+    //     categories: categories
+    //         .into_iter()
+    //         .map(|cat| {
+    //             CategoryResponse::from((cat, format!("{}/api/v1/categories", CONFIG.app.url)))
+    //         })
+    //         .collect(),
+    //     images: images.into_iter().map(ImageResponse::from).collect(),
+    // };
 
-    let response = SingleProductResponse {
-        id: product.id,
-        name: product.name,
-        description: product.description,
-        slug: product.slug.clone(),
-        price: product.price,
-        quantity: product.quantity,
-        image: asset_url(&product.image),
-        thumb: asset_url(&product.thumb),
-        created_at: product.created_at,
-        updated_at: product.updated_at,
-        url: format!("{}/api/v1/products", CONFIG.app.url),
-
-        user,
-        categories: categories
-            .into_iter()
-            .map(|cat| {
-                CategoryResponse::from((cat, format!("{}/api/v1/categories", CONFIG.app.url)))
-            })
-            .collect(),
-        images: images.into_iter().map(ImageResponse::from).collect(),
-    };
-
-    Json(ProductShowResponse {
-        product: response,
-        comments,
-    })
+    Json( {})
     .into_response()
 }
 

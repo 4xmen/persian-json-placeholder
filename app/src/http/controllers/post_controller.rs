@@ -1,8 +1,8 @@
 // main model
-use crate::models::{Comment, Post};
+use crate::models::{Comment, Post, User};
 
 use crate::helper::general::{PaginateBuilder, asset_url};
-use crate::models::post::PostResponse;
+use crate::models::post::{PostResource, PostsResource};
 use axum::Json;
 use axum::extract::{OriginalUri, Path, Query, State};
 use axum::http::StatusCode;
@@ -10,6 +10,7 @@ use axum::response::IntoResponse;
 use rustavel_core::config::CONFIG;
 use rustavel_core::config::database::DbPoolType;
 use serde::{Deserialize, Serialize};
+use crate::models::user::UserResource;
 
 #[derive(Debug, Deserialize)]
 pub struct PaginationQuery {
@@ -17,31 +18,6 @@ pub struct PaginationQuery {
     pub max: Option<usize>,
 }
 
-#[derive(Serialize, Debug)]
-pub struct SinglePostResponse {
-    pub id: u64,
-    pub title: String,
-    pub slug: String,
-    pub body: Option<String>,
-    pub image: Option<String>,
-    pub created_at: Option<time::OffsetDateTime>,
-    pub updated_at: Option<time::OffsetDateTime>,
-    pub url: String,
-    pub user: UserResponse,
-}
-
-#[derive(Serialize, Debug, sqlx::FromRow)]
-pub struct UserResponse {
-    pub id: u64,
-    pub name: String,
-    pub email: String,
-}
-
-#[derive(Serialize)]
-pub struct PostShowResponse {
-    pub post: SinglePostResponse,
-    pub comments: Vec<Comment>,
-}
 
 pub async fn index(
     State(pool): State<DbPoolType>,
@@ -64,7 +40,7 @@ pub async fn index(
 
     // Fetch posts
     let sql = r#"
-        SELECT *
+        SELECT id,title,slug,image,created_at,updated_at,body
         FROM posts
         ORDER BY id DESC
         LIMIT ? OFFSET ?
@@ -78,15 +54,12 @@ pub async fn index(
         .unwrap_or_default();
 
     // Convert Post -> PostResponse
-    let data: Vec<PostResponse> = posts
-        .into_iter()
-        .map(|post| PostResponse::from((post, format!("{}/api/v1/posts", CONFIG.app.url))))
-        .collect();
+    // let data = PostsResource::collection(posts);
 
     // Build pagination response
-    let pagination = PaginateBuilder::new(max, count, page, uri.to_string()).build(data);
+    // let pagination = PaginateBuilder::new(max, count, page, uri.to_string()).build_resource(data);
 
-    Json(pagination)
+    Json(posts)
 }
 
 // pub async fn create(State(_state): State<AppState>) -> impl IntoResponse {
@@ -144,7 +117,7 @@ pub async fn show(State(pool): State<DbPoolType>, Path(slug): Path<String>) -> i
     "#;
 
     let (user, comments) = match tokio::try_join!(
-        sqlx::query_as::<_, UserResponse>(sql_user)
+        sqlx::query_as::<_, User>(sql_user)
             .bind(post.user_id)
             .fetch_one(&pool),
         sqlx::query_as::<_, Comment>(sql_comment)
@@ -155,23 +128,24 @@ pub async fn show(State(pool): State<DbPoolType>, Path(slug): Path<String>) -> i
         Err(_) => return StatusCode::INTERNAL_SERVER_ERROR.into_response(),
     };
 
-    let post_response = SinglePostResponse {
-        id: post.id,
-        title: post.title,
-        slug: post.slug.clone(),
-        body: post.body,
-        image: asset_url(&Some(post.image)),
-        created_at: post.created_at,
-        updated_at: post.updated_at,
-        url: format!("{}/api/v1/posts", CONFIG.app.url),
-        user,
-    };
-
-    Json(PostShowResponse {
-        post: post_response,
-        comments,
-    })
-    .into_response()
+    // let post_response = SinglePostResponse {
+    //     id: post.id,
+    //     title: post.title,
+    //     slug: post.slug.clone(),
+    //     body: post.body,
+    //     image: asset_url(&Some(post.image)),
+    //     created_at: post.created_at,
+    //     updated_at: post.updated_at,
+    //     url: format!("{}/api/v1/posts", CONFIG.app.url),
+    //     user,
+    // };
+    //
+    // Json(PostShowResponse {
+    //     post: post_response,
+    //     comments,
+    // })
+    // .into_response()
+    Json({}).into_response()
 }
 
 // pub async fn destroy(State(_state): State<AppState>, query: RawQuery) -> impl IntoResponse {

@@ -1,9 +1,9 @@
 //!  this code generating by system
 //!  if you want edit create backup from your modified code
 
-use rustavel_core::config::database::PKeyType;
 use rustavel_core::mvc::model::Model;
 use serde::{Deserialize, Serialize};
+use rustavel_core::config::database::PKeyType;
 
 #[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 #[allow(dead_code)]
@@ -11,9 +11,9 @@ pub struct Todo {
     pub id: PKeyType,
     pub title: String,
     pub done: bool,
-    pub created_at: Option<time::OffsetDateTime>,
-    pub updated_at: Option<time::OffsetDateTime>,
-    pub deleted_at: Option<time::OffsetDateTime>,
+    pub created_at: Option<time::PrimitiveDateTime>,
+    pub updated_at: Option<time::PrimitiveDateTime>,
+    pub deleted_at: Option<time::PrimitiveDateTime>,
 }
 
 impl Model for Todo {
@@ -26,13 +26,6 @@ impl Model for Todo {
         "id"
     }
     fn columns() -> &'static [&'static str] {
-        &[
-            "id",
-            "title",
-            "done",
-            "created_at",
-            "updated_at",
-            "deleted_at",
-        ]
+        &["id", "title", "done", "created_at", "updated_at", "deleted_at"]
     }
 }

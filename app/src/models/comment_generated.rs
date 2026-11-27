@@ -3,22 +3,23 @@
 
 use rustavel_core::mvc::model::Model;
 use serde::{Deserialize, Serialize};
+use rustavel_core::config::database::PKeyType;
 
 #[derive(Clone, Serialize, Deserialize, sqlx::FromRow)]
 #[allow(dead_code)]
 pub struct Comment {
-    pub id: u64,
+    pub id: PKeyType,
     pub body: String,
     pub author: String,
     pub email: String,
     pub commentable_type: String,
-    pub commentable_id: u64,
-    pub created_at: Option<time::OffsetDateTime>,
-    pub updated_at: Option<time::OffsetDateTime>,
+    pub commentable_id: PKeyType,
+    pub created_at: Option<time::PrimitiveDateTime>,
+    pub updated_at: Option<time::PrimitiveDateTime>,
 }
 
 impl Model for Comment {
-    type PrimaryKey = u64;
+    type PrimaryKey = PKeyType;
 
     fn table() -> &'static str {
         "comments"
@@ -27,15 +28,6 @@ impl Model for Comment {
         "id"
     }
     fn columns() -> &'static [&'static str] {
-        &[
-            "id",
-            "body",
-            "author",
-            "email",
-            "commentable_type",
-            "commentable_id",
-            "created_at",
-            "updated_at",
-        ]
+        &["id", "body", "author", "email", "commentable_type", "commentable_id", "created_at", "updated_at"]
     }
 }
