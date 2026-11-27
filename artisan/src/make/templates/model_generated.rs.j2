@@ -24,3 +24,16 @@ impl Model for {{ name }} {
         &[{{ field_list }}]
     }
 }
+
+/// the macro that the generator places next to each model generate projection of {{ name }}
+#[macro_export]
+macro_rules! {{ name|lower }}_fields {
+    ($($rest:tt)*) => {
+        project! {
+            {{ name }} {
+    {{ fields|replace("pub ", "            ") }}
+            }
+            $($rest)*
+        }
+    };
+}

@@ -1603,6 +1603,7 @@ dependencies = [
  "rustavel-core",
  "serde",
  "serde_json",
+ "sqlx",
  "time",
  "tokio",
  "tower",

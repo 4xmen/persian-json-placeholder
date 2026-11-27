@@ -36,3 +36,21 @@ impl Model for Todo {
         ]
     }
 }
+
+/// the macro that the generator places next to each model generate projection of Todo
+#[macro_export]
+macro_rules! todo_fields {
+    ($($rest:tt)*) => {
+        project! {
+            Todo {
+                id: PKeyType,
+                title: String,
+                done: bool,
+                created_at: Option<time::PrimitiveDateTime>,
+                updated_at: Option<time::PrimitiveDateTime>,
+                deleted_at: Option<time::PrimitiveDateTime>,
+            }
+            $($rest)*
+        }
+    };
+}

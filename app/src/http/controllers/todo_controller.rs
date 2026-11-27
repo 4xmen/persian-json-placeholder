@@ -15,7 +15,7 @@ pub async fn index(State(pool): State<DbPoolType>) -> Result<impl IntoResponse, 
         SELECT * FROM todos
         WHERE deleted_at IS NULL
     "#;
-
+    
     let todos = sqlx::query_as::<_, Todo>(sql)
         .fetch_all(&pool)
         .await

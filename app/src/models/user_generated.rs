@@ -42,3 +42,24 @@ impl Model for User {
         ]
     }
 }
+
+/// the macro that the generator places next to each model generate projection of User
+#[macro_export]
+macro_rules! user_fields {
+    ($($rest:tt)*) => {
+        project! {
+            User {
+                id: PKeyType,
+                name: String,
+                email: String,
+                email_verified_at: Option<time::PrimitiveDateTime>,
+                password: String,
+                remember_token: Option<String>,
+                created_at: Option<time::PrimitiveDateTime>,
+                updated_at: Option<time::PrimitiveDateTime>,
+                deleted_at: Option<time::PrimitiveDateTime>,
+            }
+            $($rest)*
+        }
+    };
+}

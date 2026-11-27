@@ -100,3 +100,42 @@ rustc-wrapper = "sccache"
 That's it! Cargo will automatically use sccache for your builds.
 
 Note: This is completely optional. You can build the project normally without sccache.
+
+
+## How use resource & paginator each other
+
+```rust
+
+/// Logs a database error and maps it to a 500 response.
+fn db_error(e: sqlx::Error) -> StatusCode {
+    // Keep the real error on the server side only.
+    println!("{e:#?}");
+    StatusCode::INTERNAL_SERVER_ERROR
+}
+
+/// Returns one page of open todos as Laravel-style pagination JSON.
+async fn index(/* State, Query, current_url ... */) -> Result<impl IntoResponse, StatusCode> {
+    // Total matching rows; needed for `total` and `last_page`.
+    let count: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM todos WHERE deleted_at IS NULL")
+        .fetch_one(&pool)
+        .await
+        .map_err(db_error)?;
+
+    let paginator = PaginateBuilder::new(per_page, count as usize, page, current_url);
+
+    // LIMIT and OFFSET both come from the builder, so they use the clamped values.
+    let rows = sqlx::query_as::<_, TodoRow>(
+        "SELECT id, title FROM todos WHERE deleted_at IS NULL ORDER BY id LIMIT ? OFFSET ?",
+    )
+    .bind(paginator.limit() as i64)
+    .bind(paginator.offset() as i64)
+    .fetch_all(&pool)
+    .await
+    .map_err(db_error)?;
+
+    // Wrap each row in its resource; the paginator only needs `Serialize` items.
+    let data = rows.into_iter().map(TodoResource::from).collect::<Vec<_>>();
+
+    Ok(Json(paginator.build(data)))
+}
+```
